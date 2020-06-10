@@ -15,12 +15,6 @@
     DataSource 与 TransactionManager 配置相同的数据源）
 
 2) 事务结束时，回滚在第1步骤中得到的代理 connection 对象上执行的数据库命令，
-
-
-
    然后关闭该代理 connection 对象。
-
-
-
   （事务结束后，回滚操作不会对已执行完毕的SQL操作命令起作用）
 ```
