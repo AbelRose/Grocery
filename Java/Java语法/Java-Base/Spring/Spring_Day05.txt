@@ -1,0 +1,13 @@
+----------Spring----------
+1.Spring IOC 容器 有两种
+BeanFactory(面向底层) 和 ApplicationContext(面向应用开发者)
+2.依赖注入就是那个配置文件那个
+<bean id = "" class = "">
+  <property name = "" value = ""></property>
+</bean>
+3.IoC 控制反转 "不用打电话过来，我们会打给你"
+  DI 依赖注入 ref 容器负责组建的装配
+4.Mybatis 是封装了JDBC的操作
+  ORM (Object Rerlation Mapping) 在关系型数据和对象之间的一个映射
+
+

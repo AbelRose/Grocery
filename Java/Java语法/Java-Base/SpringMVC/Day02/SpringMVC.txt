@@ -1,0 +1,48 @@
+---------SpringMVC---------
+第一章:基本概念
+1.三层架构 : 表现层 业务层 持久层 
+  表现层 包括展示层和控制层 (MVC只存在表现层)
+2.SpringMVC概述
+  基于Java的实现MVC设计模式的请求驱动类的轻量级的web框架
+
+第二章 SpringMVC入门
+1.流程: 导入jar包 -> 在 pom.xml里面添加坐标 <properties><spring.version>5.0.2.RELEASE</spring.version></properties> -> 编写jsp内容(在webapp下) <a href = "hello"> -> 在resource里的springmvvc.xml里面配置 注解扫描，视图解析器对象，配置自定义类型转换器，开启servlet的注解支持 -> 添加注解 @Controller @ResquestMapping (return "success";) -> 在web.xml里面配置 前端控制器和中文乱码控制器
+
+DispatcherServlet说明
+是一个Servlet 可以配置多个Servlet 是牵制控制器 在web.xml里面配置 
+在WEB-INF 文件夹下寻找名为...的xml配置文件
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,360 @@
+
+Bootstrap
+
+1.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>常见事件</title>
+
+    <script>
+        /*
+
+
+        常见的事件：
+            1. 点击事件：
+                1. onclick：单击事件
+                2. ondblclick：双击事件
+            2. 焦点事件
+                1. onblur：失去焦点。
+                    * 一般用于表单验证
+                2. onfocus:元素获得焦点。
+
+            3. 加载事件：
+                1. onload：一张页面或一幅图像完成加载。
+
+            4. 鼠标事件：
+                1. onmousedown	鼠标按钮被按下。
+                    * 定义方法时，定义一个形参，接受event对象。
+                    * event对象的button属性可以获取鼠标按钮键被点击了。
+                2. onmouseup	鼠标按键被松开。
+                3. onmousemove	鼠标被移动。
+                4. onmouseover	鼠标移到某元素之上。
+                5. onmouseout	鼠标从某元素移开。
+
+
+            5. 键盘事件：
+                1. onkeydown	某个键盘按键被按下。
+                2. onkeyup		某个键盘按键被松开。
+                3. onkeypress	某个键盘按键被按下并松开。
+
+            6. 选择和改变
+                1. onchange	域的内容被改变。
+                2. onselect	文本被选中。
+
+            7. 表单事件：
+                1. onsubmit	确认按钮被点击。
+                    * 可以阻止表单的提交
+                        * 方法返回false则表单被阻止提交。
+                2. onreset	重置按钮被点击。
+         */
+
+
+
+
+
+        //2.加载完成事件  onload
+        window.onload = function(){
+            /*//1.失去焦点事件
+            document.getElementById("username").onblur = function(){
+                alert("失去焦点了...");
+            }*/
+            /*//3.绑定鼠标移动到元素之上事件
+            document.getElementById("username").onmouseover = function(){
+                alert("鼠标来了....");
+            }*/
+
+           /* //3.绑定鼠标点击事件
+            document.getElementById("username").onmousedown = function(event){
+               // alert("鼠标点击了....");
+                alert(event.button);
+            }*/
+
+          /*  document.getElementById("username").onkeydown = function(event){
+                // alert("鼠标点击了....");
+               // alert(event.button);
+                if(event.keyCode == 13){
+                    alert("提交表单");
+                }
+
+            }*/
+
+           /* document.getElementById("username").onchange = function(event){
+
+                alert("改变了...")
+
+            }
+
+            document.getElementById("city").onchange = function(event){
+
+                alert("改变了...")
+
+            }*/
+
+            /*document.getElementById("form").onsubmit = function(){
+                //校验用户名格式是否正确
+                var flag = false;
+
+
+                return flag;
+            }*/
+        }
+
+        function checkForm(){
+            return true;
+        }
+
+
+    </script>
+
+</head>
+<body>
+
+<!--
+    function fun(){
+       return  checkForm();
+    }
+
+ -->
+
+
+
+<form action="#" id="form" onclick="return  checkForm();">
+<input name="username" id="username">
+
+<select id="city">
+    <option>--请选择--</option>
+    <option>北京</option>
+    <option>上海</option>
+    <option>西安</option>
+</select>
+<input type="submit" value="提交">
+</form>
+</body>
+</html>
+
+2.Bootstrap_概述
+
+    一个前端开发的框架，Bootstrap，来自 Twitter，是目前很受欢迎的前端框架。Bootstrap 是基于 HTML、CSS、JavaScript 的，它简洁灵活，使得 Web 开发更加快捷。
+    • 框架:一个半成品软件，开发人员可以在框架基础上，在进行开发，简化编码。 
+    • 好处： 1. 定义了很多的css样式和js插件。我们开发人员直接可以使用这些样式和   插件得到丰富的页面效果。 
+             2. 响应式布局。 * 同一套页面可以兼容不同分辨率的设备。 
+
+3.Bootstrap_栅格系统_入门 
+  栅格系统：将一行平均分成12个格子，可以指定元素占几个格子
+  使用栅格需要注意一些细节问题:
+    1、 一行中如果格子数目超过12，则超出部分自动换行。
+    2、 栅格类属性可以向上兼容。栅格类适用于与屏幕宽度大于或等于分界点大小的设备。
+    3、 如果真实设备宽度小于了设置栅格类属性的设备代码的最小值，会一个元素沾满一整行。
+
+4.响应式布局
+	* 同一套页面可以兼容不同分辨率的设备。
+	* 实现：依赖于栅格系统：将一行平均分成12个格子，可以指定元素占几个格子
+	* 步骤：
+	1. 定义容器。相当于之前的table、
+		* 容器分类：
+			1. container：两边留白
+			2. container-fluid：每一种设备都是100%宽度
+	2. 定义行。相当于之前的tr   样式：row
+	3. 定义元素。指定该元素在不同的设备上，所占的格子数目。样式：col-设备代号-格子数目
+		* 设备代号：
+			1. xs：超小屏幕 手机 (<768px)：col-xs-12
+			2. sm：小屏幕 平板 (≥768px)
+			3. md：中等屏幕 桌面显示器 (≥992px)
+			4. lg：大屏幕 大桌面显示器 (≥1200px)
+
+	* 注意：
+		1. 一行中如果格子数目超过12，则超出部分自动换行。
+		2. 栅格类属性可以向上兼容。栅格类适用于与屏幕宽度大于或等于分界点大小的设备。
+		3. 如果真实设备宽度小于了设置栅格类属性的设备代码的最小值，会一个元素沾满一整行。
+
+
+5.Bootstrap_CSS样式和JS插件
+1. 全局CSS样式：
+	* 按钮：class="btn btn-default"
+	* 图片：
+		*  class="img-responsive"：图片在任意尺寸都占100%
+		*  图片形状
+			*  <img src="..." alt="..." class="img-rounded">：方形
+			*  <img src="..." alt="..." class="img-circle"> ： 圆形
+			*  <img src="..." alt="..." class="img-thumbnail"> ：相框
+	* 表格
+		* table
+		* table-bordered
+		* table-hover
+	* 表单
+		* 给表单项添加：class="form-control" 
+	2. 组件：
+	* 导航条
+	* 分页条
+	3. 插件：
+	* 轮播图
+
+XML
+
+1.Xml
+  xml是可扩展的标记语言,主要用途作为配置文件和网络传输数据。
+2.xml是由文档声明,指令,标签,属性和文本组成
+1.Xml
+  xml是可扩展的标记语言,主要用途作为配置文件和网络传输数据。
+2.xml是由文档声明,指令,标签,属性和文本组成
+
+3.xml_约束概述
+xml约束,其实就是约束xml标签的定义的.
+Xml约束是用来约束Xml文件什么可以写,什么不可以写.如果没有约束,Xml里面可以随意写任何标签 
+
+4.xml_约束_dtd
+* DTD：
+		* 引入dtd文档到xml文档中
+			* 内部dtd：将约束规则定义在xml文档中
+			* 外部dtd：将约束的规则定义在外部的dtd文件中
+				* 本地：<!DOCTYPE 根标签名 SYSTEM "dtd文件的位置">
+				* 网络：<!DOCTYPE 根标签名 PUBLIC "dtd文件名字" "dtd文件的位置URL">
+
+5.xml_约束_Schema
+* Schema:
+			* 引入：
+				1.填写xml文档的根元素
+				2.引入xsi前缀.  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				3.引入xsd文件命名空间.  xsi:schemaLocation="http://www.itcast.cn/xml  student.xsd"
+				4.为每一个xsd约束声明一个前缀,作为标识  xmlns="http://www.itcast.cn/xml" 
+
+			<students   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				xmlns="http://www.itcast.cn/xml"
+				xsi:schemaLocation="http://www.itcast.cn/xml  student.xsd">
+
+
+6.xml_解析
+ 解析：操作xml文档，将文档中的数据读取到内存中
+	* 操作xml文档
+		1. 解析(读取)：将文档中的数据读取到内存中
+		2. 写入：将内存中的数据保存到xml文档中。持久化的存储
+	* 解析xml的方式：
+			1. DOM：将标记语言文档一次性加载进内存，在内存中形成一颗dom树
+				* 优点：操作方便，可以对文档进行CRUD的所有操作
+				* 缺点：占内存
+			2. SAX：逐行读取，基于事件驱动的。
+				* 优点：不占内存。
+				* 缺点：只能读取，不能增删改
+7.* xml常见的解析器：
+		1. JAXP：sun公司提供的解析器，支持dom和sax两种思想
+		2. DOM4J：一款非常优秀的解析器
+		3. Jsoup：jsoup 是一款Java 的HTML解析器，可直接解析某个URL地址、HTML文本内容。它提供了一套非常省力的API，可通过DOM，CSS以及类似于jQuery的操作方法来取出和操作数据。
+		4. PULL：Android操作系统内置的解析器，sax方式的。
+
+8.* Jsoup
+jsoup 是一款Java 的HTML解析器，可直接解析某个URL地址、HTML文本内容。它提供了一套非常省力的API，可通过DOM，CSS以及类似于jQuery的操作方法来取出和操作数据。
+		* 快速入门：
+			* 步骤：
+				1. 导入jar包
+				2. 获取Document对象
+				3. 获取对应的标签Element对象
+				4. 获取数据
+
+		* 代码：
+	        //2.1获取student.xml的path
+	        String path = JsoupDemo1.class.getClassLoader().getResource("student.xml").getPath();
+	        //2.2解析xml文档，加载文档进内存，获取dom树--->Document
+	        Document document = Jsoup.parse(new File(path), "utf-8");
+	        //3.获取元素对象 Element
+	        Elements elements = document.getElementsByTag("name");
+	
+	        System.out.println(elements.size());
+	        //3.1获取第一个name的Element对象
+	        Element element = elements.get(0);
+	        //3.2获取数据
+	        String name = element.text();
+	        System.out.println(name);
+
+
+
+	在开发中经常需要获取资源文件路径，例如读写配置文件等。Java也提供很多方法来获取这些路径，
+	下面就几种常用到的作一下讨论区分： 其中xxx是当前的类
+	1、xxx.class.getClassLoader().getResource(“”).getPath(); 
+	获取src资源文件编译后的路径（即classes路径） 
+	2、xxx.class.getClassLoader().getResource(“文件”).getPath(); 
+	获取classes路径下“文件”的路径 
+	3、xxx.class.getResource(“”).getPath()； 
+	缺少类加载器，获取xxx类经编译后的xxx.class路径 
+	4、this.getClass().getClassLoader().getResource(“”).getPath()； 
+	以上三种方法的另外一种写法 
+	5、request().getSession().getServletContext().getRealPath(“”)；
+
+
+9.* 对象的使用：
+	1. Jsoup：工具类，可以解析html或xml文档，返回Document
+		* parse：解析html或xml文档，返回Document
+			* parse​(File in, String charsetName)：解析xml或html文件的。
+			* parse​(String html)：解析xml或html字符串
+			* parse​(URL url, int timeoutMillis)：通过网络路径获取指定的html或xml的文档对象
+	2. Document：文档对象。代表内存中的dom树
+		* 获取Element对象
+			* getElementById​(String id)：根据id属性值获取唯一的element对象
+			* getElementsByTag​(String tagName)：根据标签名称获取元素对象集合
+			* getElementsByAttribute​(String key)：根据属性名称获取元素对象集合
+			* getElementsByAttributeValue​(String key, String value)：根据对应的属性名和属性值获取元素对象集合
+	3. Elements：元素Element对象的集合。可以当做 ArrayList<Element>来使用
+	4. Element：元素对象
+		1. 获取子元素对象
+			* getElementById​(String id)：根据id属性值获取唯一的element对象
+			* getElementsByTag​(String tagName)：根据标签名称获取元素对象集合
+			* getElementsByAttribute​(String key)：根据属性名称获取元素对象集合
+			* getElementsByAttributeValue​(String key, String value)：根据对应的属性名和属性值获取元素对象集合
+
+		2. 获取属性值
+			* String attr(String key)：根据属性名称获取属性值
+		3. 获取文本内容
+			* String text():获取文本内容
+			* String html():获取标签体的所有内容(包括字标签的字符串内容)
+		5. Node：节点对象
+			* 是Document和Element的父类
+
+10.* 快捷查询方式：
+		1. selector:选择器
+			* 使用的方法：Elements	select​(String cssQuery)
+				* 语法：参考Selector类中定义的语法
+		2. XPath：XPath即为XML路径语言，它是一种用来确定XML（标准通用标记语言的子集）文档中某部分位置的语言
+			* 使用Jsoup的Xpath需要额外导入jar包。
+			* 查询w3cshool参考手册，使用xpath的语法完成查询
+			* 代码：
+
+			//1.获取student.xml的path
+	                Stringpath=JsoupDemo6.class.getClassLoader().getResource("student.xml").getPath();
+
+		        //2.获取Document对象
+		        Document document = Jsoup.parse(new File(path), "utf-8");
+		
+		        //3.根据document对象，创建JXDocument对象
+		        JXDocument jxDocument = new JXDocument(document);
+		
+		        //4.结合xpath语法查询
+		        //4.1查询所有student标签
+		        List<JXNode> jxNodes = jxDocument.selN("//student");
+		        for (JXNode jxNode : jxNodes) {
+		            System.out.println(jxNode);
+		        }
+		
+		        System.out.println("--------------------");
+		
+		        //4.2查询所有student标签下的name标签
+		        List<JXNode> jxNodes2 = jxDocument.selN("//student/name");
+		        for (JXNode jxNode : jxNodes2) {
+		            System.out.println(jxNode);
+		        }
+		
+		        System.out.println("--------------------");
+		
+		        //4.3查询student标签下带有id属性的name标签
+		        List<JXNode> jxNodes3 = jxDocument.selN("//student/name[@id]");
+		        for (JXNode jxNode : jxNodes3) {
+		            System.out.println(jxNode);
+		        }
+		        System.out.println("--------------------");
+		        //4.4查询student标签下带有id属性的name标签 并且id属性值为itcast
+		
+		        List<JXNode> jxNodes4 = jxDocument.selN("//student/name[@id='itcast']");
+		        for (JXNode jxNode : jxNodes4) {
+		            System.out.println(jxNode);
+		        }
+

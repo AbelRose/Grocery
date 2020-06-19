@@ -1,0 +1,77 @@
+----------Spring----------
+一:JdbcTemplate
+1.JdbcTemplate概述
+  是spring框架中提供的一个对象，是对原始Jdbc API 对象的简单封装 
+  
+  1)操作关系型数据库的
+    JdbcTemplate
+    HibernateTemplate
+
+  2)操作nosql数据库的
+    RedisTemplate
+   
+  3)操作消息队列的
+    JmsTemplate
+ps:spring-tx-5.0.2.RELEASE.jar 是和事务相关的
+
+2.JdbcTemplate 对象的创建
+  public JdbcTemplate() {
+  }
+
+  public JdbcTemplate(DataSource dataSource) {
+  setDataSource(dataSource);
+  afterPropertiesSet();
+  }
+
+  public JdbcTemplate(DataSource dataSource, boolean lazyInit) {
+  setDataSource(dataSource);
+  setLazyInit(lazyInit);
+  afterPropertiesSet();
+  }
+
+  需要提供数据源 set 依赖注入 可以在配置文件里面配置这些对象
+
+3.spring中配置数据源
+  配置数据源
+  配置C3P0 数据源
+  <bean id="dataSource" class="com.xxxx.xxxx.c3p0.ComboPooledDataSource"></bean>
+    <property name"driverClass" value="com.mysql.jdbc.Driver"></property>
+    <property name"jdbcUrl" value="jdbc:mysql:///eesy"></property>
+    <property name"user" value="root"></property>
+    <property name"password" value="root"></property>
+  </bean>
+  配置DBCP数据源
+  配置spring内置数据源
+
+4.JdbcTemplate 的增删改查操作
+  <!-- 配置一个数据库的操作模板：JdbcTemplate -->
+  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+  <property name="dataSource" ref="dataSource"></property>
+  </bean>
+
+  <!-- 配置数据源 -->
+  <bean id="dataSource"
+  class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+  <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+  <property name="url" value="jdbc:mysql:///spring_day02"></property>
+  <property name="username" value="root"></property>
+  <property name="password" value="1234"></property>
+  </bean>
+
+5.Dao中使用JdbcTemplate
+  DAO(Data Access Object) 数据访问对象是一个面向对象的数据库接口
+  
+  第一种方式:在dao中定义JdbcTemplate 
+  第二种方式:让dao继承JdbcDaoSupport
+
+二:Spring 事务控制
+   spring 提供了分层设计业务层的事务处理解决方案
+   事务控制的API
+   PlatformTransactionManager 事务管理器
+   TransactionDefinition 事务的定义信息对象
+   TransactionStatus 事务的运行状态
+   
+   ！！！
+   基于XML的声明式事务控制(配置方式)
+   基于注解的配置方式
+

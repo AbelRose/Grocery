@@ -1,0 +1,136 @@
+---------SpringMVC---------
+第一章:响应数据和结果视图
+1.1 返回值分离
+1.1.1 字符串
+1.1.2 void
+      1)通过request转向页面
+      request,getRequestDispatcher("/WEB-INF/pages/success.jsp").forward(request,response);
+      2)通过response页面重定向
+      response.sendRedirect("testReturnString")
+      3)通过response指定响应结果-（例如 json 数据）
+      response.setCharacterEncoding("utf-8");
+      response.setContentType("application/json:charset=utf-8");
+      response.getWriter().write("json串")
+1.1.3 ModelAndView
+      ModelAndView 是 SpringMVC 为我们提供的一个对象，该对象也可以用作控制器方法的返回值。
+
+1.2转发和重定向
+1.2.1 forward转发
+      需要注意的是，如果用了 formward：则路径必须写成实际视图 url，不能写逻辑视图。
+      return "forward:/WEB-INF/pages/success.jsp";      
+      它相当于“request.getRequestDispatcher("url").forward(request,response)”。使用请求转发，既可以转发到 jsp，也可以转发到其他的控制器方法。   
+1.2.2 Redirect 重定向
+      return "redirect:testReturnModelAndView";
+      它相当于“response.sendRedirect(url)”。需要注意的是，如果是重定向到 jsp 页面，则 jsp 页面不能写在 WEB-INF 目录中，否则无法找到。
+           
+1.3 ResponseBody 响应 json 数据
+    使用@ResponseBody 注解实现 将controller方法返回对象转换为json响应给客户端
+    
+第二章 SpringMVC实现文件上传
+2.1文件上传的回顾
+2.1.1 文件上传的必要前提
+      A form 表单的 enctype 取值必须是：multipart/form-data
+      (默认值是:application/x-www-form-urlencoded)
+      enctype:是表单请求正文的类型
+      B method 属性取值必须是 Post
+      C 提供一个文件选择域<input type=”file” />
+2.1.2 文件上传的原理分析
+2.1.3 借助第三方组建实现文件上传
+      Commons-fileupload 组件
+
+2.2springmvc 传统方式的文件上传
+2.2.1 说明(上传和访问存在于同一台服务器上)
+2.2.2 步骤
+      2.2.2.1 第一步 拷贝文件上传的jar包到工程的lib目录
+      2.2.2.2 第二步 编写jsp页面
+      2.2.2.3 第三部 编写控制器
+      2.2.2.4 配置文件解析器
+              注意：
+              文件上传的解析器 id 是固定的，不能起别的名称，否则无法实现请求参数的绑定。（不光是文件，其他
+              字段也将无法绑定）
+
+2.3 springmvc 跨服务器方式的文件上传
+    2.3.1 分服务器的目的 提高效率
+    2.3.2 准备两个tomcat服务器
+    2.3.3 拷贝jar包
+    2.3.4 编写控制器实现上传图片
+    2.3.5 编写jsp页面
+    2.3.6 配置解析器
+
+第3章 SpringMVC中的异常处理
+3.1 异常处理的思路
+3.2 实现步骤
+
+第4章 SpringMVC 中的拦截器
+4.1 拦截器的作用
+    Spring MVC 的处理器拦截器类似于 Servlet 开发中的过滤器 Filter，用于对处理器进行预处理和后处理。
+    过滤器是 servlet 规范中的一部分，任何 java web 工程都可以使用。
+    拦截器是 SpringMVC 框架自己的，只有使用了 SpringMVC 框架的工程才能用。
+    过滤器在 url-pattern 中配置了/*之后，可以对所有要访问的资源拦截。
+    拦截器它是只会拦截访问的控制器方法，如果访问的是 jsp，html,css,image 或者 js 是不会进行拦截的。它也是 AOP 思想的具体应用。我们要想自定义拦截器， 要求必须实现：HandlerInterceptor 接口
+
+4.2 自定义拦截器的步骤
+    4.2.1 第一步: 编写一个普通类实现HandlerInterceptor接口
+    4.2.2 第二步: 配置拦截器
+4.3 拦截器的细节
+4.4 正常流程测试
+4.5 中断流程测试    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

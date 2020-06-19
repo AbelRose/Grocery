@@ -1,0 +1,129 @@
+EL&JSTL
+
+1.JSP_指令_概述  
+  JSP有三大指令,作用设置页面信息,引入外部的资源文件,以及引入外部标签。
+
+2.jsp的指令作用,格式是什么?
+    1. * 作用：用于配置JSP页面，导入资源文件 
+    2. * 格式： <%@ 指令名称 属性名1=属性值1 属性名2=属性值2 ... %
+
+3.JSP_指令_page指令 
+   jsp的page指令主要设置页面信息,通过一些相关的属性,比如pageEncoding,ContentType等属性,这些属性大家简单了解即可.
+
+4.JSP_指令_include&taglib指令 
+
+5.JSP_注释 
+	JSP的注释有三种:
+	* html注释
+	* java注释
+	* jsp注释
+	大家需要区分清楚,三种注释的区别和作用
+
+6.JSP_内置对象 
+    1. * 在jsp页面中不需要创建，直接使用的对象 
+    2. * 一共有9个： 
+  
+  变量名 		         真实类型 作用 
+  * pageContext PageContext      当前页面共享数据，还可以获取其他八个内置对象 
+  * request HttpServletRequest   一次请求访问的多个资源(转发) 
+  * session HttpSession          一次会话的多个请求间 
+  * application ServletContext   所有用户间共享数据 
+  * response HttpServletResponse 响应对象 
+  * page Object                  当前页面(Servlet)的对象 this 
+  * out JspWriter                输出对象，数据输出到页面上 
+  * config ServletConfig         Servlet的配置对象 
+  * exception Throwable          异常对象 
+
+7.MVC
+
+   MVC是由web前段人员设计开发的一种设计模式,可以应用在任何语言的开发中,mvc中的M,V,C具体是什么,对应的技术需要记清楚.
+
+    1. M：Model，模型。JavaBean * 完成具体的业务操作，如：查询数据库，封装对象 
+    2. V：View，视图。JSP * 展示数据 
+    3. C：Controller，控制器。Servlet * 获取用户的输入 * 调用模型 * 将数据交给视图进行展示 
+
+    
+8.EL_概述 
+
+   EL是一种表达式语言,只能作用与jsp页面,可以进行运算,获取值等操作
+
+9.EL_运算符
+
+   在EL里面进行多种运算:
+	    1. 算数运算符： + - * /(div) %(mod)
+            2. 比较运算符： > < >= <= == !=
+            3. 逻辑运算符： &&(and) ||(or) !(not)
+            4. 空运算符：   empty
+
+   其中empty运算符,需要重点记忆.
+
+10.EL_获取域中存储的值
+
+   EL其中重要的用途就是获取域对象中保存的值,比如获取数组,集合,对象等中的值
+
+11.获取域中存储的值_对象值 
+	   el获取对象中的值,其根据是对象的get方法被调用
+
+	<%
+		User user = new User();
+		user.setName("张三");
+		user.setAge(23);
+		user.setBirthday(new Date());
+
+
+		request.setAttribute("u",user);
+
+
+		List list = new ArrayList();
+		list.add("aaa");
+		list.add("bbb");
+		list.add(user);
+
+		request.setAttribute("list",list);
+
+
+		Map map = new HashMap();
+		map.put("sname","李四");
+		map.put("gender","男");
+		map.put("user",user);
+
+		request.setAttribute("map",map);
+
+	    %>
+
+	<h3>el获取对象中的值</h3>
+	${requestScope.u}<br>
+
+	<%--
+	    * 通过的是对象的属性来获取
+		* setter或getter方法，去掉set或get，在将剩余部分，首字母变为小写。
+		* setName --> Name --> name
+	--%>
+
+	    ${requestScope.u.name}<br>
+	    ${u.age}<br>
+	    ${u.birthday}<br>
+	    ${u.birthday.month}<br>
+
+	    ${u.birStr}<br>
+
+
+12.EL_获取域中存储的值_List集合&Map集合值
+   el获取集合中的值,如果是list集合,则是通过下标获取,如果是map集合,则是通过map的key获取.
+
+	<h3>el获取List值</h3>
+	    ${list}<br>
+	    ${list[0]}<br>
+	    ${list[1]}<br>
+	    ${list[10]}<br>
+
+	    ${list[2].name}
+
+	    <h3>el获取Map值</h3>
+	    ${map.gender}<br>
+	    ${map["gender"]}<br>
+	    ${map.user.name}
+
+13.EL_empty运算符&隐式对象pageContext
+    Empty运算符,主要判断域对象中是保存的值是否为null,pageContext对象的用途
+    1.获取其它八个内置对象,2,操作其它三个域对象

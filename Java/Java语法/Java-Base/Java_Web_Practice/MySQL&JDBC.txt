@@ -1,0 +1,1403 @@
+day01_基础加强
+1. 什么是黑盒和白盒测试？
+黑盒测试：不需要写代码，给输入值，看程序是否能够输出期望的值。
+白盒测试：需要写代码的。关注程序具体的执行流程。
+2. Assert.assertEquals(期望的结果,运算的结果);
+进行单元测试时，一定先要引入Junit包才可以使用。并且该注解必须在方法名上。
+3.  @Before:
+                * 修饰的方法会在测试方法之前被自动执行
+            * @After:
+                * 修饰的方法会在测试方法执行之后自动被执行
+4. 一个单元测试用例执行顺序为：@BeforeClass（必须是static void） –> @Before –> @Test –> @After –> @AfterClass （必须是static void）
+
+
+/**
+     * 初始化方法：
+     *  用于资源申请，所有测试方法在执行之前都会先执行该方法
+     */
+    @Before
+    public void init(){
+        System.out.println("init...");
+    }
+
+    /**
+     * 释放资源方法：
+     *  在所有测试方法执行完后，都会自动执行该方法
+     */
+    @After
+    public void close(){
+        System.out.println("close...");
+}
+5.反射：将类的各个组成部分封装为其他对象，这就是反射机制
+* 好处：
+            1. 可以在程序运行过程中，操作这些对象。
+            2. 可以解耦，提高程序的可扩展性。
+6. JAVA反射机制是在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为java语言的反射机制。
+7. 获取Class对象的方式：
+        1. Class.forName("全类名")：将字节码文件加载进内存，返回Class对象
+            * 多用于配置文件，将类名定义在配置文件中。读取文件，加载类
+        2. 类名.class：通过类名的属性class获取
+            * 多用于参数的传递
+
+        3. 对象.getClass()：getClass()方法在Object类中定义着。（一般用第三种）
+            * 多用于对象的获取字节码的方式
+8.反射对象功能概述
+	获取功能
+		1. 获取成员变量们
+				* Field[] getFields() ：获取所有public修饰的成员变量
+				* Field getField(String name)   获取指定名称的 public修饰的成员变量
+				* Field[] getDeclaredFields()  获取所有的成员变量，不考虑修饰符
+				* Field getDeclaredField(String name)  
+			2. 获取构造方法们
+				* Constructor<?>[] getConstructors()  
+				* Constructor<T> getConstructor(类<?>... parameterTypes)  
+
+				* Constructor<T> getDeclaredConstructor(类<?>... parameterTypes)  
+				* Constructor<?>[] getDeclaredConstructors()  
+			3. 获取成员方法们：
+				* Method[] getMethods()  
+				* Method getMethod(String name, 类<?>... parameterTypes)  
+* Method[] getDeclaredMethods()  
+				* Method getDeclaredMethod(String name, 类<?>... parameterTypes)  
+			4. 获取全类名	
+				* String getName()  
+
+	通过class字节码对象可以获取该类的方法以及属性
+9. Class对象获取Field
+	Class personClass=Person.class;
+        Field[]  fields=personClass.getFields();
+        for (Field field : fields) {//iter
+            System.out.println("getFileds(): "+field);
+        }
+
+        Field field=personClass.getField("a");
+        System.out.println("getField(): "+field);
+        System.out.println("=====================================================");
+
+
+        Field a=personClass.getField("a");
+        Person p=new Person();
+        Object value=a.get(p);
+        System.out.println(p);
+        a.set(p,1);
+        System.out.println(p);
+
+
+        System.out.println("=====================================================");
+
+        Field[] fiels2=personClass.getDeclaredFields();
+        for (Field field2 : fiels2) {
+            System.out.println("getDeclaredFields(): "+field2);
+        }
+
+        Field field3=personClass.getDeclaredField("name");
+        System.out.println("getDeclaredField(): "+field3);
+10. Class对象功能_获取Constructor
+构造器最大的用处就是在创建对象时执行初始化，当创建一个对象时，系统会为这个对象的实例进行默认的初始化。如果想改变这种默认的初始化，就可以通过自定义构造器来实现。
+如果使用空参数构造方法创建对象，操作可以简化：Class对象的newInstance
+Class personClass=Person.class;
+        Constructor constructor=personClass.getConstructor();
+        Object p1=constructor.newInstance();
+        System.out.println(p1);
+        System.out.println("=========================================");
+
+
+        Constructor constructor1=personClass.getConstructor(String.class,String.class);
+        Object person1=constructor1.newInstance("aaa","bbb");
+        System.out.println(person1);
+        System.out.println("=========================================");
+
+        Object person=personClass.newInstance();
+        System.out.println(person);
+11. class对象获取Method
+使用method.getParameterTypes();可以获取该方法的参数
+Class personClass=Person.class;
+        Method[] methods=personClass.getMethods();
+        for (Method method : methods) {
+            System.out.println(method);
+        }
+        System.out.println("=============================");
+
+        Method method01=personClass.getMethod("eat");
+        Person person=new Person();
+        method01.invoke(person);
+        System.out.println("==============================");
+        Method method02=personClass.getMethod("eat",String.class);
+        method02.invoke(person,"zhangsan")
+12.反射
+首先要从配置文件中读取该类的全限定类名，然后用class.forName()，来获取该类的class对象，再通过class对象获取并执行成员方法。
+Properties properties=new Properties();
+        ClassLoader cl=ClassTest05.class.getClassLoader();
+        InputStream is=cl.getResourceAsStream("source.properties");
+        properties.load(is);
+
+        String className=properties.getProperty("className");
+        String method=properties.getProperty("methodName");
+        Class personClass=Class.forName(className);
+        Object person=personClass.newInstance();
+        Method method1=personClass.getMethod("eat");
+        method1.invoke(person);
+13* 作用分类：
+		①编写文档：通过代码里标识的注解生成文档【生成文档doc文档】
+		②代码分析：通过代码里标识的注解对代码进行分析【使用反射】
+		③编译检查：通过代码里标识的注解让编译器能够实现基本的编译检查【Override】
+	
+注解就是为了简化开发，避免写过多的代码，不利于程序的扩展以及维护        * @Override    ：检测被该注解标注的方法是否是继承自父类(接口)的
+        * @Deprecated：该注解标注的内容，表示已过时
+        * @SuppressWarnings：压制警告
+            * 一般传递参数all  @SuppressWarnings("all")
+14. 编写代码实现自定义注解
+public @interface MyAnno {
+
+     int value();
+    Person per();
+    MyAnno2 anno2();
+    String[] strs();
+     /*String name() default "张三";*/
+     /*String show2();
+
+     Person per();
+     MyAnno2 anno2();
+
+     String[] strs();*/
+
+
+}
+15. 元注解：用于描述注解的注解
+            * @Target：描述注解能够作用的位置
+                * ElementType取值：
+                    * TYPE：可以作用于类上
+                    * METHOD：可以作用于方法上
+                    * FIELD：可以作用于成员变量上
+            * @Retention：描述注解被保留的阶段
+                * @Retention(RetentionPolicy.RUNTIME)：当前被描述的注解，会保留到class字节码文件中，并被JVM读取到
+            * @Documented：描述注解是否被抽取到api文档中
+            * @Inherited：描述注解是否被子类继承
+
+day02__mysql基础
+1.MySQL登录
+            	1. mysql -uroot -p密码
+          	 2. mysql -hip -uroot -p连接目标的密码
+           	 3. mysql --host=ip --user=root --password=连接目标的密码
+         MySQL退出
+            	1. exit
+            	2. quit
+2.structured Query Language：结构化查询语言
+其实就是定义了操作所有关系型数据库的规则
+3.       . 3 种注释
+            * 单行注释: -- 注释内容 或 # 注释内容(mysql 特有) 
+            * 多行注释: /* 注释 */
+4.SQL分类
+1) DDL(Data Definition Language)数据定义语言
+            用来定义数据库对象：数据库，表，列等。关键字：create, drop,alter 等
+        2) DML(Data Manipulation Language)数据操作语言
+            用来对数据库中表的数据进行增删改。关键字：insert, delete, update 等
+        3) DQL(Data Query Language)数据查询语言
+            用来查询数据库中表的记录(数据)。关键字：select, where 等
+        4) DCL(Data Control Language)数据控制语言(了解)
+            用来定义数据库的访问权限和安全级别，及创建用户。关键字：GRANT， REVOKE 等
+
+
+5.操作数据库：CRUD
+		1. C(Create):创建
+			* 创建数据库：
+				* create database 数据库名称;
+			* 创建数据库，判断不存在，再创建：
+				* create database if not exists 数据库名称;
+			* 创建数据库，并指定字符集
+				* create database 数据库名称 character set 字符集名;
+
+			* 练习： 创建db4数据库，判断是否存在，并制定字符集为gbk
+				* create database if not exists db4 character set gbk;
+		2. R(Retrieve)：查询
+			* 查询所有数据库的名称:
+				* show databases;
+			* 查询某个数据库的字符集:查询某个数据库的创建语句
+				* show create database 数据库名称;
+            3.U(Update):修改
+			* 修改数据库的字符集
+				* alter database 数据库名称 character set 字符集名称;
+		4.D(Delete):删除
+			* 删除数据库
+				* drop database 数据库名称;
+			* 判断数据库存在，存在再删除
+				* drop database if exists 数据库名称;
+
+
+6.使用数据库
+			* 查询当前正在使用的数据库名称
+				* select database();//不要忘记写()
+			* 使用数据库
+				* use 数据库名称;
+
+
+7.查询某个数据库中所有的表名称
+                * show tables;
+            * 查询表结构(看表的键和值等)
+                * desc 表名;
+
+8.C(Create):创建
+            1. 语法：
+                create table 表名(
+                    列名1 数据类型1,
+                    列名2 数据类型2,
+                    ....
+                    列名n 数据类型n
+                );
+                * 注意：最后一列，不需要加逗号（,）
+
+9.drop table 表名;
+            * drop table  if exists 表名 ;
+
+10.
+1. 修改表名
+				alter table 表名 rename to 新的表名;
+			2. 修改表的字符集
+				alter table 表名 character set 字符集名称;
+			3. 添加一列
+				alter table 表名 add 列名 数据类型;
+			4. 修改列名称 类型
+				alter table 表名 change 列名 新列别 新数据类型;
+				alter table 表名 modify 列名 新数据类型;
+			5. 删除列
+				alter table 表名 drop 列名;
+				
+11.DML添加数据
+* 语法：
+            * insert into 表名(列名1,列名2,...列名n) values(值1,值2,...值n);
+        * 注意：
+            1. 列名和值要一一对应。
+            2. 如果表名后，不定义列名，则默认给所有列添加值
+                insert into 表名 values(值1,值2,...值n);
+            3. 除了数字类型，其他类型需要使用引号(单双都可以)引起来
+12.DML删除数据
+* 语法：
+            * delete from 表名 [where 条件]
+        * 注意：
+            1. 如果不加条件，则删除表中所有记录。
+            2. 如果要删除所有记录
+                1. delete from 表名; -- 不推荐使用。有多少条记录就会执行多少次删除操作
+                2. TRUNCATE TABLE 表名; -- 推荐使用，效率更高 先删除表，然后再创建一张一样的表。
+13.DML修改数据
+修改数据：
+		* 语法：
+			* update 表名 set 列名1 = 值1, 列名2 = 值2,... [where 条件];
+
+		* 注意：
+			1. 如果不加任何条件，则会将表中所有记录全部修改。
+
+
+14.DQL基础查询
+
+		1.多个字段的查询
+			select 字段名1，字段名2... from 表名；
+			* 注意：
+			* 如果查询所有字段，则可以使用*来替代字段列表。
+		2.去除重复：
+			* distinct
+		3.计算列
+			* 一般可以使用四则运算计算一些列的值。（一般只会进行数值型的计算）
+			* ifnull(表达式1,表达式2)：null参与的运算，计算结果都为null
+			* 表达式1：哪个字段需要判断是否为null
+			* 如果该字段为null后的替换值。
+		4.起别名：
+			* as：as也可以省略
+
+15.DQL条件查询
+1. where子句后跟条件
+		2. 运算符
+			* > 、< 、<= 、>= 、= 、<>
+			* BETWEEN...AND  
+			* IN( 集合) 
+			* LIKE：模糊查询
+				* 占位符：
+					* _:单个任意字符
+					* %：多个任意字符
+			* IS NULL  
+			* and  或 &&
+			* or  或 || 
+			* not  或 !
+16.DQL条件查询_模糊查询
+LIKE：模糊查询
+                * 占位符：
+                    * _:单个任意字符
+                    * %：多个任意字符
+全国有多少人的名字中有“伟”的，就要用到like ‘%伟%’
+17.DQL排序查询
+语法：order by 子句
+            * order by 排序字段1 排序方式1 ，排序字段2 排序方式2...
+        * 排序方式：
+            * ASC：升序，默认的。
+            * DESC：降序
+注意：
+            * 如果有多个排序条件，则当前边的条件值一样时，才会判断第二条件
+18.DQL聚合函数
+聚合函数对一组值执行计算并返回单一的值。除了 COUNT 以外，聚合函数忽略空值。聚合函数经常与 SELECT 语句的 GROUP BY 子句一同使用。
+聚合函数：将一列数据作为一个整体，进行纵向的计算。
+        1. count：计算个数
+            1. 一般选择非空的列：主键
+ 	    2. count(*)
+        2. max：计算最大值
+        3. min：计算最小值
+        4. sum：计算和
+        5. avg：计算平均值
+19.DQL分组查询
+	GROUP BY关键字可以将查询结果按照某个字段或多个字段进行分组。字段中值相等的为一组。基本的语法格式如下：
+GROUP BY 属性名 [HAVING 条件表达式] [WITH ROLLUP]
+   	• 属性名：是指按照该字段的值进行分组。
+    	• HAVING 条件表达式：用来限制分组后的显示，符合条件表达式的结果将被显示。
+    	• WITH ROLLUP：将会在所有记录的最后加上一条记录。加上的这一条记录是上面所有记录的总和。
+
+	1. 语法：group by 分组字段；
+        2. 注意：
+            1. 分组之后查询的字段：分组字段、聚合函数
+            2. where 和 having 的区别？
+                1. where 在分组之前进行限定，如果不满足条件，则不参与分组。having在分组之后进行限定，如果不满足结果，则不会被查询出来
+                2. where 后不可以跟聚合函数，having可以进行聚合函数的判断。
+
+
+ROUP BY关键字可以和GROUP_CONCAT()函数一起使用。GROUP_CONCAT()函数会把每个分组中指定的字段值都显示出来。
+
+同时，GROUP BY关键字通常与集合函数一起使用。集合函数包括COUNT()函数、SUM()函数、AVG()函数、MAX()函数和MIN()函数等。
+
+sql语句的执行过程是：from-->where-->group by -->having --- >order by --> select;
+其执行顺序为：FROM-WHERE-GROUP BY-HAVING-SELECT-DISTINCT-UNION-ORDER BY
+Mysql执行顺序：开始->FROM子句->WHERE子句->GROUP BY子句->HAVING子句->ORDER BY子句->SELECT子句->LIMIT子句->最终结果
+聚合函数是针对结果集进行的，但是where条件并不是在查询出结果集之后运行，所以主函数放在where语句中，会出现错误，
+
+而having不一样，having是针对结果集做筛选的，所以我门一般吧组函数放在having中，用having来代替where，having一般跟在group by后
+
+20.约束概述 
+对表中的数据进行限定，保证数据的正确性、有效性和完整性。
+	主键约束（Primary Key constraint）：要求主键列数据唯一，并且不允许为空。
+	唯一约束（Unique constraint）：要求该列唯一，允许为空，但只能出现一个空值。
+	检查约束（Check constraint）：某列取值范围限制，格式限制等，如有关年龄、邮箱（必须有@）的约束。
+	默认约束（Default constraint）：某列的默认值，如在数据库里有一项数据很多重复，可以设为默认值。
+	外键约束（Foreign Key constraint）：用于在两个表之间建立关系，需要指定引用主表的哪一列。
+
+21.约束_非空约束
+not null，某一列的值不能为null
+	1. 创建表时添加约束
+            CREATE TABLE stu(
+                id INT,
+                NAME VARCHAR(20) NOT NULL -- name为非空
+            );
+ 	2. 创建表完后，添加非空约束
+            ALTER TABLE stu MODIFY NAME VARCHAR(20) NOT NULL;
+ 	3. 删除name的非空约束
+            ALTER TABLE stu MODIFY NAME VARCHAR(20);
+
+22. 约束_唯一约束
+unique，某一列的值不能重复。注意：null值可以有多个。
+唯一约束：unique，某一列的值不能重复
+        1. 注意：
+            * 唯一约束可以有NULL值
+        2. 在创建表时，添加唯一约束
+            CREATE TABLE stu(
+                id INT,
+                phone_number VARCHAR(20) UNIQUE -- 手机号
+            );
+        3. 删除唯一约束
+            ALTER TABLE stu DROP INDEX phone_number;
+        4. 在表创建完后，添加唯一约束
+            ALTER TABLE stu MODIFY phone_number VARCHAR(20) UNIQUE;
+23.约束_主键约束
+	primary key，非空并且唯一，一张表只能有一个主键，主键是表的唯一标识
+	主键约束：primary key。
+        1. 注意：
+            1. 含义：非空且唯一
+            2. 一张表只能有一个字段为主键
+            3. 主键就是表中记录的唯一标识
+
+        2. 在创建表时，添加主键约束
+            create table stu(
+                id int primary key,-- 给id添加主键约束
+                name varchar(20)
+            );
+
+        3. 删除主键
+            -- 错误 alter table stu modify id int ;
+            ALTER TABLE stu DROP PRIMARY KEY;
+
+        4. 创建完表后，添加主键
+            ALTER TABLE stu MODIFY id INT PRIMARY KEY;
+
+
+
+	主键主要用在查询单调数据，修改单调数据和删除单调数据上。
+24.约束_主键约束_自动增长
+	自动增长：
+            1.  概念：如果某一列是数值类型的，使用 auto_increment 可以来完	成值得自动增长
+
+            2. 在创建表时，添加主键约束，并且完成主键自增长
+            create table stu(
+                id int primary key auto_increment,-- 给id添加主键约束
+                name varchar(20)
+            );
+
+            
+            3. 删除自动增长
+            ALTER TABLE stu MODIFY id INT;
+            4. 添加自动增长
+            ALTER TABLE stu MODIFY id INT AUTO_INCREMENT;
+
+
+	优点是：
+		1.自动编号 速度快
+		2.数字型 占用空间小 易排序
+		3.不用担心主键重复的问题
+	缺点是:
+		1.在异库异构的数据库的情况下 容易新老主键混合 会发生冲突
+		2.在系统集成的时候 如果主键的类型不一样的话 会导致其他外建关联的表的修改
+		3.若系统也是数字型的，在导入时，为了区分新老数据，可能想在老数据主键前统一加一个字符标识（例如“o”，old）来表示这是老数据，那么自动增长的数字型又面临一个挑战。
+
+25.约束_外键约束
+foreign key,让表于表产生关系，从而保证数据的正确性。
+外键约束：foreign key,让表于表产生关系，从而保证数据的正确性。
+        1. 在创建表时，可以添加外键
+            * 语法：
+                create table 表名(
+                    ....
+                    外键列
+                    constraint 外键名称 foreign key (外键列名称) references 主表名称(主表列名称)
+                );
+
+        2. 删除外键
+            ALTER TABLE 表名 DROP FOREIGN KEY 外键名称;
+
+        3. 创建表之后，添加外键
+            ALTER TABLE 表名 ADD CONSTRAINT 外键名称 FOREIGN KEY (外键字段名称) REFERENCES 主表名称(主表列名称);
+
+26.约束_外键约束_级联操作
+	A表与B表有外键约束，A中有外键，B中数据改变时，A中的外键字段对应做出改变。
+		1. 添加级联操作
+                语法：ALTER TABLE 表名 ADD CONSTRAINT 外键名称 
+                        FOREIGN KEY (外键字段名称) REFERENCES 主表名称(主表列名称) ON UPDATE CASCADE ON DELETE CASCADE  ;
+           	2. 分类：
+                1. 级联更新：ON UPDATE CASCADE 
+                2. 级联删除：ON DELETE CASCADE 
+27.多表关系介绍
+		1.一对一(了解)：
+                * 如：人和身份证
+                * 分析：一个人只有一个身份证，一个身份证只能对应一个人
+           	2. 一对多(多对一)：
+                * 如：部门和员工
+                * 分析：一个部门有多个员工，一个员工只能对应一个部门
+            	3. 多对多：
+		* 如：学生和课程
+                * 分析：一个学生可以选择很多门课程，一个课程也可以被很多学生选择
+		 多对多：
+                * 如：学生和课程
+                * 实现方式：多对多关系实现需要借助第三张中间表。中间表至少包含两个字段，这两个字段作为第三张表的外键，分别指向两张表的主键
+
+		需要创建一张中间表来维护两张主表之间的关系，并且中间表最少要有两个字段。
+		
+28.三大范式详解
+1. 第一范式（1NF）：每一列都是不可分割的原子数据项
+2. 第二范式（2NF）：在1NF的基础上，非码属性必须完全依赖于码（在1NF基础上消除非主属性对主码的部分函数依赖）
+       * 几个概念：
+          1. 函数依赖：A-->B,如果通过A属性(属性组)的值，可以确定唯一B属性的值。则称B依赖于A
+            例如：学号-->姓名。  （学号，课程名称） --> 分数
+          2. 完全函数依赖：A-->B， 如果A是一个属性组，则B属性值得确定需要依赖于A属性组中所有的属性值。
+            例如：（学号，课程名称） --> 分数
+          3. 部分函数依赖：A-->B， 如果A是一个属性组，则B属性值得确定只需要依赖于A属性组中某一些值即可。
+            例如：（学号，课程名称） -- > 姓名
+          4. 传递函数依赖：A-->B, B -- >C . 如果通过A属性(属性组)的值，可以确定唯一B属性的值，在通过B属性（属性组）的值可以确定唯一C属性的值，则称 C 传递函数依赖于A
+            例如：学号-->系名，系名-->系主任
+          5. 码：如果在一张表中，一个属性或属性组，被其他所有属性所完全依赖，则称这个属性(属性组)为该表的码
+             例如：该表中码为：（学号，课程名称）
+                   * 主属性：码属性组中的所有属性
+                   * 非主属性：除过码属性组的属性                 
+3. 第三范式（3NF）：在2NF基础上，任何非主属性不依赖于其它非主属性（在2NF基础上消除传递依赖）
+
+29.数据库范式的作用？
+是为了在设计中更好的解决数据冗余，数据有效性检查，提高存储效率考虑。
+
+30.数据库的备份和还原
+
+31.多表查询_概述
+一次查询多张数据库表.
+
+分类：内连接查询，外链接查询，子查询
+	
+多表查询语法
+	查询语法：
+        select
+            列名列表
+        from
+            表名列表
+        where....
+
+32.多表查询_内连接
+
+内连接是从结果表中删除与其他被连接表中没有匹配行的所有行，所以内连接可能会丢失信息。
+
+* 笛卡尔积：
+      * 有两个集合A,B .取这两个集合的所有组成情况。
+      * 要完成多表查询，需要消除无用的数据
+
+显式内连接：
+       * 语法： select 字段列表 from 表名1 [inner] join 表名2 on 条件
+       * 例如：
+           * SELECT * FROM emp INNER JOIN dept ON emp.`dept_id` = dept.`id`;    
+           * SELECT * FROM emp JOIN dept ON emp.`dept_id` = dept.`id`;    
+
+
+内连接查询：
+         1. 从哪些表中查询数据
+         2. 条件是什么
+         3. 查询哪些字段
+
+1.1.等值连接：在连接条件中使用等于号(=)运算符比较被连接列的列值，其查询结果中列出被连接表中的所有列，包括其中的重复列。
+1.2.不等值连接：在连接条件使用除等于运算符以外的其它比较运算符比较被连接的列的列值。这些运算符包括>、>=、<=、<、!>、!<和<>。
+1.3.自然连接：在连接条件中使用等于(=)运算符比较被连接列的列值，但它使用选择列表指出查询结果集合中所包括的列，并删除连接表中的重复列。
+
+区别：自然连接要求两个关系中相等的分量必须是相同属性组，而等值连接不必，自然连接要在结果中把重复的属性去掉
+联系：自然连接是一种特殊的等值连接
+
+1. 等值连接中不要求相等属性值的属性名相同，而自然连接要求相等属性值的属性名必须相同，即两关系只有在同名属性才能进行自然连接。如上例R中的C列和S中的D列可进行等值连接，但因为属性名不同，不能进行自然连接。 
+
+ 
+
+  2. 等值连接不将重复属性去掉，而自然连接去掉重复属性，也可以说，自然连接是去掉重复列的等值连接。如上例R中的B列和S中的B列进行等值连接时，结果有两个重复的属性列B,而进行自然连接时，结果只有一个属性列B。 
+
+
+33.多表查询_外连接
+外连接分为：左外连接，右外连接
+在左外连接和右外连接时都会以一张表为基表，该表的内容会全部显示，然后加上两张表匹配的内容。如果基表的数据在另一张表没有记录。那么在相关联的结果集行中列显示为空值（NULL）。
+1. 左外连接：
+         * 语法：select 字段列表 from 表1 left [outer] join 表2 on 条件；
+         * 查询的是左表所有数据以及其交集部分。
+         * 例子：
+              -- 查询所有员工信息，如果员工有部门，则查询部门名称，没有部门，则不显示部门名称
+              SELECT t1.*,t2.`name` FROM emp t1 LEFT JOIN dept t2 ON t1.`dept_id` = t2.`id`;
+2. 右外连接：
+          * 语法：
+		select 字段列表 from 表1 right [outer] join 表2 on 条件；
+          * 查询的是右表所有数据以及其交集部分。
+          * 例子：
+                SELECT     * FROM dept t2 RIGHT JOIN emp t1 ON t1.`dept_id` = t2.`id`;
+
+
+
+总结与补充
+1）LEFT  JOIN或LEFT OUTER JOIN     
+左向外联接的结果集包括  LEFT OUTER子句中指定的左表的所有行，而不仅仅是联接列所匹配的行。如果左表的某行在右表中没有匹配行，则在相关联的结果集行中右表的所有选择列表列均为空值。       
+2）RIGHT  JOIN 或 RIGHT  OUTER  JOIN     
+右向外联接是左向外联接的反向联接。将返回右表的所有行。如果右表的某行在左表中没有匹配行，则将为左表返回空值。   
+
+34.查询中嵌套查询，称嵌套查询为子查询
+	在SQL语言中，一个SELECT-FROM-WHERE语句称为一个查询块。当获得一个查询的答案需要多个步骤的操作，首先必须创建一个查询来确定用户不知道但包含在数据库中的值，将一个查询块嵌套在另一个查询块的WHERE字句或HAVING短语的条件中查询块称为子查询或内层查询。
+
+35.
+1.子查询的结果是单行单列的：
+             * 子查询可以作为条件，使用运算符去判断。 运算符： > >= < <= =
+             * 
+                -- 查询员工工资小于平均工资的人
+          SELECT * FROM emp WHERE emp.salary < (SELECT AVG(salary) FROM emp); 
+2.子查询的结果是多行单列的：
+             * 子查询可以作为条件，使用运算符in来判断
+                    -- 查询'财务部'和'市场部'所有的员工信息
+              SELECT id FROM dept WHERE NAME = '财务部' OR NAME = '市场部';
+              SELECT * FROM emp WHERE dept_id = 3 OR dept_id = 2;
+                    -- 子查询
+              SELECT * FROM emp WHERE dept_id IN (SELECT id FROM dept WHERE NAME = '财务部' OR NAME = '市场部');
+
+3.子查询的结果是多行多列的：
+              * 子查询可以作为一张虚拟表参与查询
+               -- 查询员工入职日期是2011-11-11日之后的员工信息和部门信息
+               -- 子查询
+                 SELECT * FROM dept t1 ,(SELECT * FROM emp WHERE emp.`join_date` > '2011-11-11') t2 WHERE t1.id = t2.dept_id;
+36.事务基本演示
+1.如果一个包含多个步骤的业务操作，被事务管理，那么这些操作要么同时成功，要么同时失败。
+数据库事务(Database Transaction) ，是指作为单个逻辑工作单元执行的一系列操作，要么完全地执行，要么完全地不执行。 事务处理可以确保除非事务性单元内的所有操作都成功完成，否则不会永久更新面向数据的资源。通过将一组相关操作组合为一个要么全部成功要么全部失败的单元，可以简化错误恢复并使应用程序更加可靠。
+2.一个逻辑工作单元要成为事务，必须满足所谓的ACID（原子性、一致性、隔离性和持久性）属性。事务是数据库运行中的逻辑工作单位，由DBMS中的事务管理子系统负责事务的处理。
+3.银行转账的例子
+
+37.事务_默认自动提交&手动提交
+	事务提交的两种方式：
+                * 自动提交：
+                    * mysql就是自动提交的
+                    * 一条DML(增删改)语句会自动提交一次事务。
+                * 手动提交：
+                    * Oracle 数据库默认是手动提交事务
+                    * 需要先开启事务，再提交
+            * 修改事务的默认提交方式：
+                * 查看事务的默认提交方式：SELECT @@autocommit; -- 1 代表自动提交  0 代表手动提交
+                * 修改默认提交方式： set @@autocommit = 0;
+
+事务有两种提交方式：自动提交与手动提交
+	手动提交需要开启事务START TRANSACTION; ，操作完成后，还必须提交事务COMMIT;，修改后的数据才会生效。
+
+38.事务_事务的四大特征
+	1. 原子性(Atomicity)：是不可分割的最小操作单位，要么同时成功，要么同时失败。
+        2. 一致性(Consistency)：事务操作前后，数据总量不变
+        3. 隔离性(Isolation)：多个事务之间。相互独立。
+        4. 持久性(Durability)：当事务提交或回滚后，数据库会持久化的保存数据。
+
+39.事务_事务的隔离级别介绍
+		* 存在问题：
+			1. 脏读：一个事务，读取到另一个事务中没有提交的数据
+			2. 不可重复读(虚读)：在同一个事务中，两次读取到的数据不一样。
+			3. 幻读：一个事务操作(DML)数据表中所有记录，另一个事务添加了一条数据，则第一个事务查询不到自己的修改。
+		* 隔离级别：
+			1. read uncommitted：读未提交
+				* 产生的问题：脏读、不可重复读、幻读
+			2. read committed：读已提交 （Oracle）
+				* 产生的问题：不可重复读、幻读
+			3. repeatable read：可重复读 （MySQL默认）
+				* 产生的问题：幻读
+			4. serializable：串行化
+				* 可以解决所有的问题
+
+			* 注意：隔离级别从小到大安全性越来越高，但是效率越来越低
+			* 数据库查询隔离级别：
+				* select @@tx_isolation;
+			* 数据库设置隔离级别：
+				* set global transaction isolation level  级别字符串;
+
+40.事务_事务隔离级别演示
+	修改事务的隔离级别： 
+	set global transaction isolation level 级别字符串;
+	练习时一定要重连mysql并且先开启事务：
+		start transaction;
+	操作完成后需手动提交事务：
+		Commit；
+
+只有重新连接mysql后，隔离级别才可以生效
+
+41.DCL_管理用户_增删查
+  * DCL：管理用户，授权
+        1. 管理用户
+            1. 添加用户：
+                * 语法：CREATE USER '用户名'@'主机名' IDENTIFIED BY '密码';
+            2. 删除用户：
+                * 语法：DROP USER '用户名'@'主机名';
+            3. 修改用户密码：
+                
+                UPDATE USER SET PASSWORD = PASSWORD('新密码') WHERE USER = '用户名';
+                UPDATE USER SET PASSWORD = PASSWORD('abc') WHERE USER = 'lisi';
+                
+                SET PASSWORD FOR '用户名'@'主机名' = PASSWORD('新密码');
+                SET PASSWORD FOR 'root'@'localhost' = PASSWORD('123');
+
+                * mysql中忘记了root用户的密码？
+                    1. cmd -- > net stop mysql 停止mysql服务
+                        * 需要管理员运行该cmd
+
+                    2. 使用无验证方式启动mysql服务： mysqld --skip-grant-tables
+                    3. 打开新的cmd窗口,直接输入mysql命令，敲回车。就可以登录成功
+                    4. use mysql;
+                    5. update user set password = password('你的新密码') where user = 'root';
+                    6. 关闭两个窗口
+                    7. 打开任务管理器，手动结束mysqld.exe 的进程
+                    8. 启动mysql服务
+                    9. 使用新密码登录。
+            4. 查询用户：
+                -- 1. 切换到mysql数据库
+                USE myql;
+                -- 2. 查询user表
+                SELECT * FROM USER;
+	* 通配符： % 表示可以在任意主机使用用户登录数据库
+添加用户的时候要设置用户的ip地址，可以有效防止密码被盗取后，其他人访问数据库，对数据库造成损坏，极大提高数据库的安全性
+
+42.DCL_管理权限
+	    1. 查询权限：
+                -- 查询权限
+                SHOW GRANTS FOR '用户名'@'主机名';
+                SHOW GRANTS FOR 'lisi'@'%';
+
+            2. 授予权限：
+                -- 授予权限
+                grant 权限列表 on 数据库名.表名 to '用户名'@'主机名';
+                -- 给张三用户授予所有权限，在任意数据库任意表上
+                
+                GRANT ALL ON *.* TO 'zhangsan'@'localhost';
+            3. 撤销权限：
+                -- 撤销权限：
+                revoke 权限列表 on 数据库名.表名 from '用户名'@'主机名';
+                REVOKE UPDATE ON db3.`account` FROM 'lisi'@'%';
+
+
+	权限管理极大提高了数据库的安全性，有效降低了数据库数据被误删的几率。
+	授权的关键字为:   grant 权限列表 on 数据库名.表名 to '用户名'@'主机名';
+	撤销权限的关键字为：revoke 权限列表 on 数据库名.表名 from '用户名'@'主机名';
+	
+43JDBC_概念
+	概念：Java DataBase Connectivity  Java 数据库连接， Java语言操作数据库
+        * JDBC本质：其实是官方（sun公司）定义的一套操作所有关系型数据库的规则，即接口。各个数据库厂商去实现这套接口，提供数据库驱动jar包。我们可以使用这套接口（JDBC）编程，真正执行的代码是驱动jar包中的实现类。 
+	JDBC提供了一种基准，据此可以构建更高级的工具和接口，使数据库开发人员能够编写数据库应用程序，同时，JDBC也是个商标名。
+	有了JDBC，向各种关系数据发送SQL语句就是一件很容易的事。换言之，有了JDBC API，就不必为访问Sybase数据库专门写一个程序，为访问Oracle数据库又专门写一个程序，或为访问Informix数据库又编写另一个程序等等，程序员只需用JDBC API写一个程序就够了，它可向相应数据库发送SQL调用。同时，将Java语言和JDBC结合起来使程序员不必为不同的平台编写不同的应用程序，只须写一遍程序就可以让它在任何平台上运行，这也是Java语言“编写一次，处处运行”的优势。
+44.JDBC_快速入门
+ 步骤：
+            1. 导入驱动jar包 mysql-connector-java-5.1.37-bin.jar
+                1.复制mysql-connector-java-5.1.37-bin.jar到项目的libs目录下
+                2.右键-->Add As Library
+            2. 注册驱动(注意：mysql5之后的驱动jar包可以省略注册驱动的步骤。)
+            3. 获取数据库连接对象 Connection
+            4. 定义sql
+            5. 获取执行sql语句的对象 Statement
+            6. 执行sql，接受返回结果
+            7. 处理结果
+            8. 释放资源
+
+在操作前必须先获取与数据库的连接。操作完成后必须关闭连接，避免资源浪费。
+Jdbc具体操作步骤固定。
+
+45.JDBC各个类详解_DriverManager_获取数据库连接
+
+	获取数据库连接：
+                    * 方法：static Connection getConnection(String url, String user, String password) 
+                    * 参数：
+                        * url：指定连接的路径
+                            * 语法：jdbc:mysql://ip地址(域名):端口号/数据库名称
+                            * 例子：jdbc:mysql://localhost:3306/db3
+                            * 细节：如果连接的是本机mysql服务器，并且mysql服务默认端口是3306，则url可以简写为：jdbc:mysql:///数据库名称
+                        * user：用户名
+                        * password：密码  
+
+	加载 Driver 类并在 DriverManager 类中注册后，它们即可用来与数据库建立连接。当调用 DriverManager.getConnection 方法发出连接请求时，DriverManager 将检查每个驱动程序，查看它是否可以建立连接。
+
+46.JDBC各个类详解_Connection
+	 Connection：数据库连接对象
+            1. 功能：
+                1. 获取执行sql 的对象
+                    * Statement createStatement()
+                    * PreparedStatement prepareStatement(String sql)  
+                2. 管理事务：
+                    * 开启事务：setAutoCommit(boolean autoCommit) ：调用该方法设置参数为false，即开启事务
+                    * 提交事务：commit() 
+                    * 回滚事务：rollback() 
+
+
+	一次Drivermanager.getConnection(jdbcurl)获得只是一个connection他可以获取sql的执行对象，还可以开启、回滚、提交事务。Mysql的连接路径为：jdbc:mysql://localhost:3306/db3，user,password
+
+47.JDBC各个类详解_Statement
+执行sql
+                1. boolean execute(String sql) ：可以执行任意的sql 了解 
+                2. int executeUpdate(String sql) ：执行DML（insert、update、delete）语句、DDL(create，alter、drop)语句
+                    * 返回值：影响的行数，可以通过这个影响的行数判断DML语句是否执行成功 返回值>0的则执行成功，反之，则失败。
+                3. ResultSet executeQuery(String sql)  ：执行DQL（select)语句
+
+Statement安全性较低，不能有效防止sql注入问题，项目中很少使用。
+	Statement 接口提供了三种执行 SQL 语句的方法：executeQuery、executeUpdate 和 execute。使用哪一个方法由 SQL 语句所产生的内容决定。 
+
+方法executeQuery 
+用于产生单个结果集的语句，例如 SELECT 语句。 被使用最多的执行 SQL 语句的方法是 executeQuery。这个方法被用来执行 SELECT 语句，它几乎是使用最多的 SQL 语句。 
+
+方法executeUpdate 
+用于执行 INSERT、UPDATE 或 DELETE 语句以及 SQL DDL（数据定义语言）语句，例如 CREATE TABLE 和 DROP TABLE。INSERT、UPDATE 或 DELETE 语句的效果是修改表中零行或多行中的一列或多列。executeUpdate 的返回值是一个整数，指示受影响的行数（即更新计数）。对于 CREATE TABLE 或 DROP TABLE 等不操作行的语句，executeUpdate 的返回值总为零。 
+
+
+48.JDBC练习insert/_update/_update_DDL语句语句
+
+代码：
+                    Statement stmt = null;
+                    Connection conn = null;
+                    try {
+                        //1. 注册驱动
+                        Class.forName("com.mysql.jdbc.Driver");
+                        //2. 定义sql
+                        String sql = "insert into account values(null,'王五',3000)";
+                        //3.获取Connection对象
+                        conn = DriverManager.getConnection("jdbc:mysql:///db3", "root", "root");
+                        //4.获取执行sql的对象 Statement
+                        stmt = conn.createStatement();
+                        //5.执行sql
+                        int count = stmt.executeUpdate(sql);//影响的行数
+                        //6.处理结果
+                        System.out.println(count);
+                        if(count > 0){
+                            System.out.println("添加成功！");
+                        }else{
+                            System.out.println("添加失败！");
+                        }
+            
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }finally {
+                        //stmt.close();
+                        //7. 释放资源
+                        //避免空指针异常
+                        if(stmt != null){
+                            try {
+                                stmt.close();
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+            
+                        if(conn != null){
+                            try {
+                                conn.close();
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+需要注意关闭connection,statement,关闭这两个资源的时候要先判断这两个值是否为空。
+不为空才可以关闭，为空要抛异常。
+
+49.JDBC各个类详解_ResultSet_基本使用
+
+ResultSet：结果集对象,封装查询结果
+            * boolean next(): 游标向下移动一行，判断当前行是否是最后一行末尾(是否有数据)，如果是，则返回false，如果不是则返回true
+            * getXxx(参数):获取数据
+                * Xxx：代表数据类型   如： int getInt() ,    String getString()
+                * 参数：
+                    1. int：代表列的编号,从1开始   如： getString(1)
+                    2. String：代表列名称。 如： getDouble("balance")
+            
+            * 注意：
+                * 使用步骤：
+                    1. 游标向下移动一行
+                    2. 判断是否有数据
+                    3. 获取数据
+
+ResultSet:结果集，封装了使用JDBC进行查询的结果
+     * 1.调用Statement对象的excuteQuery(sql)方法可以得到结果集
+     * 2.ResultSet返回的实际上就是一张数据表，有一个指针
+     *   指向数据表的第一样的前面，可以调用next()方法检测下一行是否有效，若有效则返回true
+     *   ,并且指针下移，相当于迭代器对象的hasNext()和next()的结合体
+     * 3.当指针对位到确定的一行时，可以通过调用getXxx(index)或者getXxx(columnName)
+     * 获取每一列的值，例如：getInt(1),getString("name")
+     * 4.ResultSet当然也需要进行关闭
+
+public static void main(String[] args) {
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            //1. 注册驱动
+            Class.forName("com.mysql.jdbc.Driver");
+            //2.获取连接对象
+            conn = DriverManager.getConnection("jdbc:mysql:///db3", "root", "root");
+            //3.定义sql
+            String sql  = "select * from account";
+            //4.获取执行sql对象
+            stmt = conn.createStatement();
+            //5.执行sql
+            rs = stmt.executeQuery(sql);
+            //6.处理结果
+            //6.1 让游标向下移动一行
+            rs.next();
+            //6.2 获取数据
+            int id = rs.getInt(1);
+            String name = rs.getString("name");
+            double balance = rs.getDouble(3);
+
+            System.out.println(id + "---" + name + "---" + balance);
+
+
+            //6.1 让游标向下移动一行
+            rs.next();
+            //6.2 获取数据
+            int id2 = rs.getInt(1);
+            String name2 = rs.getString("name");
+            double balance2 = rs.getDouble(3);
+
+            System.out.println(id2 + "---" + name2 + "---" + balance2);
+
+            //6.1 让游标向下移动一行
+            rs.next();
+            //6.2 获取数据
+            int id3 = rs.getInt(1);
+            String name3 = rs.getString("name");
+            double balance3 = rs.getDouble(3);
+
+            System.out.println(id3 + "---" + name3 + "---" + balance3);
+
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            //7.释放资源
+
+            if(rs != null){
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if(stmt != null){
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if(conn != null){
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+}
+
+50JDBC各个类详解_ResultSet_遍历结果集
+
+ 使用步骤：
+                    1. 游标向下移动一行
+                    2. 判断是否有数据
+                    3. 获取数据
+
+                   //循环判断游标是否是最后一行末尾。
+                    while(rs.next()){
+                        //获取数据
+                        //6.2 获取数据
+                        int id = rs.getInt(1);
+                        String name = rs.getString("name");
+                        double balance = rs.getDouble(3);
+        
+                        System.out.println(id + "---" + name + "---" + balance);
+                    }
+
+遍历时首先要判断是否有数据，遍历完成后要关闭resultSet
+实体类中的属性名称与类型要与数据库中对应的列相匹配。并且查询完成后要关闭ResultSet、statement、connection等。
+
+51.JDBC工具类
+	目的：简化书写
+    * 分析：
+        1. 注册驱动也抽取
+        2. 抽取一个方法获取连接对象
+            * 需求：不想传递参数（麻烦），还得保证工具类的通用性。
+            * 解决：配置文件
+                jdbc.properties
+                    url=
+                    user=
+                    password=
+
+
+        3. 抽取一个方法释放资源
+每次连接数据库都要重复写jdbc的连接步骤，为了简化开发需要把固定不变的代码抽取出来，这样使用的时候直接调用工具类并把参数传入就可以完成连接数据库的操作了。
+
+
+编写代码实现JDBC工具类
+
+public class JDBCUtils {
+    private static String url;
+    private static String user;
+    private static String password;
+    private static String driver;
+    /**
+     * 文件的读取，只需要读取一次即可拿到这些值。使用静态代码块
+     */
+    static{
+        //读取资源文件，获取值。
+
+        try {
+            //1. 创建Properties集合类。
+            Properties pro = new Properties();
+
+            //获取src路径下的文件的方式--->ClassLoader 类加载器
+            ClassLoader classLoader = JDBCUtils.class.getClassLoader();
+            URL res  = classLoader.getResource("jdbc.properties");
+            String path = res.getPath();
+           // System.out.println(path);///D:/IdeaProjects/itcast/out/production/day04_jdbc/jdbc.properties
+            //2. 加载文件
+           // pro.load(new FileReader("D:\\IdeaProjects\\itcast\\day04_jdbc\\src\\jdbc.properties"));
+            pro.load(new FileReader(path));
+
+            //3. 获取数据，赋值
+            url = pro.getProperty("url");
+            user = pro.getProperty("user");
+            password = pro.getProperty("password");
+            driver = pro.getProperty("driver");
+            //4. 注册驱动
+            Class.forName(driver);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 获取连接
+     * @return 连接对象
+     */
+    public static Connection getConnection() throws SQLException {
+
+        return DriverManager.getConnection(url, user, password);
+    }
+
+    /**
+     * 释放资源
+     * @param stmt
+     * @param conn
+     */
+    public static void close(Statement stmt,Connection conn){
+        if( stmt != null){
+            try {
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if( conn != null){
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    /**
+     * 释放资源
+     * @param stmt
+     * @param conn
+     */
+    public static void close(ResultSet rs,Statement stmt, Connection conn){
+        if( rs != null){
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if( stmt != null){
+            try {
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if( conn != null){
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+}
+
+
+
+52.JDBC各个类详解_PreparedStatement
+执行sql的对象
+            1. SQL注入问题：在拼接sql时，有一些sql的特殊关键字参与字符串的拼接。会造成安全性问题
+                1. 输入用户随便，输入密码：a' or 'a' = 'a
+                2. sql：select * from user where username = 'fhdsjkf' and password = 'a' or 'a' = 'a' 
+
+            2. 解决sql注入问题：使用PreparedStatement对象来解决
+            3. 预编译的SQL：参数使用?作为占位符
+            4. 步骤：
+                1. 导入驱动jar包 mysql-connector-java-5.1.37-bin.jar
+                2. 注册驱动
+                3. 获取数据库连接对象 Connection
+                4. 定义sql
+                    * 注意：sql的参数使用？作为占位符。 如：select * from user where username = ? and password = ?;
+                5. 获取执行sql语句的对象 PreparedStatement  Connection.prepareStatement(String sql) 
+                6. 给？赋值：
+                    * 方法： setXxx(参数1,参数2)
+                        * 参数1：？的位置编号 从1 开始
+                        * 参数2：？的值
+                7. 执行sql，接受返回结果，不需要传递sql语句
+                8. 处理结果
+                9. 释放资源
+5. 注意：后期都会使用PreparedStatement来完成增删改查的所有操作
+                1. 可以防止SQL注入
+                2. 效率更高
+
+
+53.	一般使用preparedStatement执行sql语句，因为效率高，还可以有效防止sql注入问题。
+	在JDBC应用中，如果你已经是稍有水平开发者，你就应该始终以PreparedStatement代替Statement.也就是说，在任何时候都不要使用Statement。
+	
+	PreparedStatement接口继承Statement，并与之在两方面有所不同：
+	PreparedStatement 实例包含已编译的 SQL 语句。这就是使语句“准备好”。包含于 PreparedStatement 对象中的 SQL 语句可具有一个或多个 IN 参数。IN参数的值在 SQL 语句创建时未被指定。相反的，该语句为每个 IN 参数保留一个问号（“？”）作为占位符。每个问号的值必须在该语句执行之前，通过适当的setXXX 方法来提供。
+	由于 PreparedStatement 对象已预编译过，所以其执行速度要快于 Statement 对象。因此，多次执行的 SQL 语句经常创建为 PreparedStatement 对象，以提高效率。
+	作为 Statement 的子类，PreparedStatement 继承了 Statement 的所有功能。另外它还添加了一整套方法，用于设置发送给数据库以取代 IN 参数占位符的值。同时，三种方法 execute、 executeQuery 和 executeUpdate 已被更改以使之不再需要参数。这些方法的 Statement 形式（接受 SQL 语句参数的形式）不应该用于 PreparedStatement 对象。
+
+54.JDBC管理事务_概述
+
+	事务：一个包含多个步骤的业务操作。如果这个业务操作被事务管理，则这多个步骤要么同时成功，要么同时失败。
+	通过connection开启、关闭、回滚事务。一般增删改需要事务，也就是说只要有需要改动就需要开启事务。
+
+55.JDBC管理事务_实现
+
+  操作：
+        1. 开启事务
+        2. 提交事务
+        3. 回滚事务
+  使用Connection对象来管理事务
+        * 开启事务：setAutoCommit(boolean autoCommit) ：调用该方法设置参数为false，即开启事务
+            * 在执行sql之前开启事务
+        * 提交事务：commit() 
+            * 当所有sql都执行完提交事务
+        * 回滚事务：rollback() 
+            * 在catch中回滚事务
+
+	在执行SQL语句之前，先执行start transaction，这就开启了一个事务（事务的起点），然后可以去执行多条SQL语句，最后要结束事务，commit表示提交，即事务中的多条SQL语句所作出的影响会持久到数据库中，或者rollback，表示回滚到事务的起点，之前做的所有操作都被撤销了。
+56.JDBC连接池的基本原理及实现方式
+    1.使用数据库连接池的原因：
+        传统方式创建和销毁连接都需要消耗系统资源
+        传统方式创建和销毁连接都需要消耗时间
+
+    2.使用数据库连接池的目的：
+        为了复用连接，代替传统的频繁占用系统资源和耗费时间的方式
+        便于管理连接，可以规定最大的连接数（控制应用服务器对数据库的并发访问）
+
+57.基于统一，JAVA为数据库连接池提供了公共接口，要求所有项目开发的连接池必须实现DataSource接口，可一统一用一套接口的方法使用不同开发商的数据库连接池。
+
+58.
+c3p0连接池
+
+    封装c3p0连接池创建一个数据库工具类
+
+	/**
+	 * (封装c3p0连接池来创建数据库工具类)
+	 * @author YanoHao
+	 *
+	 */
+	public class DatabaseUtil {
+   	 /**
+	  * c3p0连接池对象的引用
+	  */
+	  private static DataSource c3p0Poor;
+	 /**
+	  * 创建一次
+	  */
+    static {
+        //直接创建连接池对象（自动加载配置文件，无需设置参数）
+        c3p0Poor = new ComboPooledDataSource();
+        //通过工厂的方式创建连接池对象
+        //      try {
+//          DataSource unpooledDataSource = DataSources.unpooledDataSource();
+//          c3p0Poor = DataSources.pooledDataSource(unpooledDataSource);
+//      } catch (SQLException e) {
+//          // TODO Auto-generated catch block
+//          e.printStackTrace();
+//      }
+    }
+    /**
+     * 获取连接对象
+     * @throws SQLException 
+     */
+    public static Connection getConnection() throws SQLException{
+
+        Connection connection = c3p0Poor.getConnection();
+        System.out.println("获取连接对象成功");
+        return connection;
+    }
+
+    /**
+     * 关闭资源
+     */
+    //关闭建立的连接对象，释放资源
+        public static void closeSourceConnection(Connection connection, Statement statement, ResultSet resultSet){
+
+            try {
+                if (connection!=null) {
+                    connection.close();
+                }
+                if (statement!=null) {
+                    statement.close();
+                }
+                if (resultSet!=null) {
+                    resultSet.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public static DataSource getC3p0Poor() {
+            return c3p0Poor;
+        }
+}
+
+59.
+	druid连接池
+
+    封装druid连接池创建一个数据库工具类
+
+/*
+ * 封装druid连接池创建工具类
+ */
+public class DatabaseUtil {
+
+    /**
+     * 数据库连接池（druid连接池）对象引用
+     */
+    private static DataSource druidPool;
+
+    static {
+        try {
+            Properties properties = new Properties();
+            ClassLoader classLoader = DatabaseUtil.class.getClassLoader();
+            InputStream resourceAsStream = classLoader.getResourceAsStream("druidconfig.properties");
+            properties.load(resourceAsStream);
+            //通过直接创建连接池对象的方式创建连接池对象
+//          DruidDataSource druidDataSource = new DruidDataSource();
+//          druidDataSource.setUsername(properties.getProperty("username"));
+//          druidDataSource.setPassword(properties.getProperty("password"));
+//          druidDataSource.setUrl(properties.getProperty("url"));
+//          druidDataSource.setDriverClassName(properties.getProperty("driverClassName"));
+//          druidPool = druidDataSource;
+            //通过工厂的方式创建连接池对象
+            druidPool = DruidDataSourceFactory.createDataSource(properties);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }   
+    }
+
+    public static Connection getConnection() throws SQLException{
+
+        Connection connection = druidPool.getConnection();
+        return connection;
+    }
+
+    /**
+     * 
+     * 关闭建立的连接对象，释放资源
+     */
+    public static void closeSourceConnection(Connection connection, Statement statement, ResultSet resultSet){
+
+        try {
+            if (connection!=null) {
+                connection.close();
+            }
+            if (statement!=null) {
+                statement.close();
+            }
+            if (resultSet!=null) {
+                resultSet.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static DataSource getDruidPool() {
+        return druidPool;
+    }
+}
+
+60.使用Spring JDBCTemplate简化JDBC的操作
+	在spring中对原生的jdbc操作进行封装成模板类JdbcTemplate类，之所以封装，是因为原生jdbc操作不但麻烦而且啰嗦，使业务代码和数据库操作代码混在一起，相当杂乱。而且如果你获得数据源连接之后如果忘了关闭，就会有数据连接泄露的风险，久而久之，系统崩溃。而使用JdbcTemplate就不一样了，spring对于数据的操作采用模板模式进行，分为模板和回调两个部分，对于连接数据库，释放资源这种不变的操作封装在模板中，而对于数据库的数据访问封装在回调接口中进行，spring的这一方法，不可谓不经典！
+	今天的主题说的是JdbcTemplate对于查询数据的操作，有两种接口都可以进行查询，分别是RowCallbackHandler()和RowMapper<T>,下面先来看看例子
+    package com.smart.pojo;
+    //实体类，博客论坛
+    public class Forum {
+     
+        private int forumId;
+        private String forumName;
+        private String forumDesc;
+     
+        public int getForumId() {
+            return forumId;
+        }
+     
+        public void setForumId(int forumId) {
+            this.forumId = forumId;
+        }
+     
+        public String getForumName() {
+            return forumName;
+        }
+     
+        public void setForumName(String forumName) {
+            this.forumName = forumName;
+        }
+     
+        public String getForumDesc() {
+            return forumDesc;
+        }
+     
+        public void setForumDesc(String forumDesc) {
+            this.forumDesc = forumDesc;
+        }
+    }
+
+数据访问接口如下：
+
+    @Repository
+    public class ForumDao {
+     
+        private JdbcTemplate jdbcTemplate;
+     
+        @Autowired
+        public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+            this.jdbcTemplate = jdbcTemplate;
+        }
+     
+        //查询数据,使用RowCallbackHandler处理结果集
+        public Forum getForum(final int forumId){
+            String sql = "select forum_name,forum_desc from t_forum where forum_id=?";
+            final Forum forum = new Forum();
+     
+            //将结果集数据行中的数据抽取到forum对象中
+            jdbcTemplate.query(sql, new Object[]{forumId}, new RowCallbackHandler() {
+                public void processRow(ResultSet rs) throws SQLException {
+                    forum.setForumId(forumId);
+                    forum.setForumName(rs.getString("forum_name"));
+                    forum.setForumDesc(rs.getString("forum_desc"));
+                }
+            });
+            return forum;
+        }
+     
+        //查询数据，批量查询,调用RowCallbackHandler()接口
+        public List<Forum> getForums(final int fromId , final int toId){
+            String sql = "select * from t_forum where forum_id between ? and ?";
+            final List<Forum> forumList = new ArrayList<Forum>();
+     
+            jdbcTemplate.query(sql, new Object[]{fromId, toId}, new RowCallbackHandler() {//将结果集中的数据映射到List中
+                public void processRow(ResultSet rs) throws SQLException {
+                    Forum forum = new Forum();
+                    forum.setForumId(rs.getInt("forum_id"));
+                    forum.setForumName(rs.getString("forum_name"));
+                    forum.setForumDesc(rs.getString("forum_desc"));
+                    forumList.add(forum);
+                }
+            });
+            return forumList;
+        }
+     
+        ////查询数据，批量查询,调用RowMapper()接口
+        public List<Forum> getForumsByRowMapper(final int fromId , final int toId){
+            String sql = "select * from t_form where forum_id between ? and ?";
+            return jdbcTemplate.query(sql, new Object[]{fromId, toId}, new RowMapper<Forum>() {
+                public Forum mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    Forum forum = new Forum();
+                    forum.setForumId(rs.getInt("forum_id"));
+                    forum.setForumName(rs.getString("forum_name"));
+                    forum.setForumDesc(rs.getString("forum_desc"));
+                    return forum;
+                }
+            });
+        }
+        
+        
+    }
+
+可以看出，无论是单个对象查询还是集合查询，都可以使用RowCallbackHandler回调接口，通过该接口可以定义如何从结果集中获取数据。而RowMapper<T>仅需定义结果集行和对象的映射关系即可。
+
+那么问题来了，二者有何区别？
+
+【我们知道，通过JDBC查询返回一个ResultSet结果集时，JDBC并不会一次性将匹配的数据都加载到JVM中，而是只返回一批次的数据（由JDBC驱动程序决定，如ORACLE的JDBC驱动默认返回10行），当通过ResultSet#next（）游标滚动结果集超过数据范围时，JDBC再获取一批数据。这样以一种“批量化+串行化”的处理方式避免大结果集处理时JVM内存的过大开销。】
+
+当处理大结果集时，如果使用Row Mapper，那么采用的方式是将结果集中的所有数据都放到一个List<T>对象中，这样将会占用大量的JVM内存，甚至可能引发OutOfMemoryException，这时，可以采用RowCallbackHandler接口，在processRow()接口方法内部一边获取数据一边完成处理，这样数据就不会在内存中堆积，可大大减少对JVM内存的占用。
+
+****************************************************************************************************************************
+
+举例：如果程序要求给所有系统用户发送一封邮件，而系统用户数量为100万。一种方案是采用RowMapper,返回一个List<User>集合，再通过遍历这个List<User>，逐个发送邮件；而另一种方案是采用RowCallbackHandler接口，在processRow（）接口方法内部逐行获取User数据后，立即调用邮件服务发送邮件。虽然这两种方案都达到了相同的目的，但第一种方案会在程序运行过程中，在JVM中产生一个系统用户数大小为100万条的List<User>，从而导致极低的系统性能和巨大的内存开销，甚至引起系统崩溃。
+
+结论：采用RowMapper的操作方式是先获取数据，再处理数据；而RowCallbackHandler得操作方式是一边获取数据一边处理，处理完就丢弃。因此，可以将RowMapper看作采用批量化数据处理策略，而RowCallbackHandler则采用流化处理数据。

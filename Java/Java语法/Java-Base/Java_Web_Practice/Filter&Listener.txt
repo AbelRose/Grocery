@@ -1,0 +1,43 @@
+1.过滤器(Filter)
+
+过滤器实际上就是对web资源进行拦截，做一些处理后再交给下一个过滤器或servlet处理
+通常都是用来拦截request进行处理的，也可以对返回的response进行拦截处理
+    应用场景
+	自动登录
+	统一设置编码格式
+	访问权限控制
+	敏感字符过滤等
+
+常用配置项
+urlPatterns
+配置要拦截的资源
+
+    以指定资源匹配。例如"/index.jsp"
+    以目录匹配。例如"/servlet/*"
+    以后缀名匹配，例如"*.jsp"
+    通配符，拦截所有web资源。"/*"
+
+
+过滤器是在服务器启动时就会创建的，只会创建一个实例，常驻内存，也就是说服务器一启动就会执行Filter的init(FilterConfig config)方法.
+当Filter被移除或服务器正常关闭时，会执行destroy方法
+
+如果一定要确保执行顺序，就要对配置进行修改了，执行顺序如下
+
+    在web.xml中，filter执行顺序跟<filter-mapping>的顺序有关，先声明的先执行
+    使用注解配置的话，filter的执行顺序跟名称的字母顺序有关，例如AFilter会比BFilter先执行
+    如果既有在web.xml中声明的Filter，也有通过注解配置的Filter，那么会优先执行web.xml中配置的Filter
+
+    执行顺序跟<filter>的顺序无关
+<filter-mapping>的顺序才决定执行顺序
+
+2.Listener概述
+
+Listener可以监听容器中某一执行动作，并根据其要求做出相应的响应。   
+常用的Web事件的监听接口如下：
+ServletContextListener：用于监听Web的启动及关闭
+ServletContextAttributeListener：用于监听ServletContext范围内属性的改变
+ServletRequestListener：用于监听用户请求
+ServletRequestAttributeListener：用于监听ServletRequest范围属性的改变
+HttpSessionListener：用于监听用户session的开始及结束
+HttpSessionAttributeListener：用于监听HttpSession范围内的属性改变
+

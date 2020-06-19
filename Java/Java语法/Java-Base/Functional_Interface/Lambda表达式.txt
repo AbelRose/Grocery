@@ -1,0 +1,48 @@
+类名::方法名
+
+注意是方法名哦，后面没有括号“()”哒。为啥不要括号，因为这样的是式子并不代表一定会调用这个方法。这种式子一般是用作Lambda表达式，Lambda有所谓懒加载嘛，不要括号就是说，看情况调用方法。
+
+例如
+
+表达式:
+
+person -> person.getAge();
+
+可以替换成
+
+Person::getAge
+
+表达式
+
+() -> new HashMap<>();
+
+可以替换成
+
+HashMap::new
+
+这种[方法引用]或者说[双冒号运算]对应的参数类型是Function<T,R> T表示传入类型，R表示返回类型。比如表达式person -> person.getAge(); 传入参数是person，返回值是person.getAge()，那么方法引用Person::getAge就对应着Function<Person,Integer>类型。
+
+下面这段代码，进行的操作是，把List<String>里面的String全部大写并返还新的ArrayList<String>，在前面的例子中我们是这么写的：
+
+    @Test
+    public void convertTest() {
+        List<String> collected = new ArrayList<>();
+        collected.add("alpha");
+        collected.add("beta");
+        collected = collected.stream().map(string -> string.toUpperCase()).collect(Collectors.toList());
+        System.out.println(collected);
+    }
+
+现在也可以被替换成下面的写法：
+
+    @Test
+    public void convertTest() {
+        List<String> collected = new ArrayList<>();
+        collected.add("alpha");
+        collected.add("beta");
+        collected = collected.stream().map(String::toUpperCase).collect(Collectors.toCollection(ArrayList::new));//注意发生的变化
+        System.out.println(collected);
+    }
+
+
+

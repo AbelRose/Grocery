@@ -1,0 +1,46 @@
+----------Maven-----------
+1.依赖传递:
+  除了 spring-webmvc 以外的其他 jar。因为我们的项目依赖 spring-webmv.jar，而spring-webmv.jar 会依赖 spring-beans.jar 等等，所以spring-beans.jar 这些 jar 包也出现在了我们的 maven 工程中，这种现象我们称为依赖传递。
+2.依赖冲突的解决
+  1)第一声明者优先原则
+  2)路径近者优先原则 (直接定义)
+3.排除依赖
+  如果要排除spring-webmvc里面的spring-beans 直接在dependency标签里面定义标签排除 
+  <exclusions>
+    <exclusion>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+    <exclusion>
+  </exclusions>
+4.锁定版本
+  <dependencyManagement>
+  </dependencyManagement>
+5.定义pom.xml
+6.Dao层
+resultType（自动配置）
+
+resultType可以把查询结果封装到pojo类型中，但必须pojo类的属性名和查询到的数据库表的字段名一致。 如果sql查询到的字段与pojo的属性名不一致，则需要使用resultMap将字段名和属性名对应起来，进行手动配置封装，将结果映射到pojo中,如下介绍resultMap
+
+ 
+resultMap（手动配置）
+
+resultMap可以实现将查询结果映射为复杂类型的pojo，比如在查询结果映射对象中包括pojo和list实现一对一查询和一对多查询
+
+<resultMap>标签写在mapper.xml中，有程序员控制sql查询结果与实体类的映射关系
+
+注：使用resultMap标签时，<select>标签不写resultType属性，而是使用resultMap属性引用<resultMap>标签
+
+分模块构建工程
+通常继承和聚合同时使用。
+ 何为继承？
+继承是为了消除重复，如果将 dao、service、web 分开创建独立的工程则每个工程的 pom.xml
+文件中的内容存在重复，比如：设置编译版本、锁定 spring 的版本的等，可以将这些重复的
+配置提取出来在父工程的 pom.xml 中定义。
+ 何为聚合？
+项目开发通常是分组分模块开发，每个模块开发完成要运行整个工程需要将每个模块聚合在
+一起运行，比如：dao、service、web 三个工程最终会打一个独立的 war 运行。
+
+web->(依赖)service->(依赖)dao
+
+7.maven私服
+
