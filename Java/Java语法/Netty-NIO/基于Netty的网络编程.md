@@ -107,3 +107,69 @@ Maven
 	</dependency>
 </dependencies>
 ```
+
+##### websocket 以及前端代码编写
+
+websocket是应用层上的应用层协议 依赖于HTTP协议进行一次握手. websocket在进行握手之后就可以脱离HTTP进行TCP传输了
+
+##### MUI
+
+一个轻量级的前端框架 可以是Android 或者 IOS平台
+
+使用MUI发起Ajax请求 :
+
+```javascript
+mui.ajax('http://192.168.1.xxx:9000/login‘), // 注意不能是127.0.0.1
+	data:{
+		username:username.value,
+		password:password.value	
+},
+	dataType:'json', // 服务器返回json数据
+	type:'post',
+	timeout: 10000,
+	headers:{
+	'Content-Type' : 'application/json'  
+},
+success:function(data){
+	// 可以用console.log()
+	conslole.log(data);
+},
+error:function(xhr,type,errorThrown){
+		console.log(type);
+		}
+	}
+});
+```
+
+后段基于Springboot编写一个web应用
+
+##### H5+
+
+提供了对HTML5的增强 二维码 摄像头 地图位置 消息推送等功能
+
+##### HBuilder
+
+前端开发工具
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
