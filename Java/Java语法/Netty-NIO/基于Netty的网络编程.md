@@ -151,6 +151,244 @@ error:function(xhr,type,errorThrown){
 
 前端开发工具
 
+##### 后端
+
+基于Springoot编写的一个web应用 主要用于接受Ajax 响应数据到前端
+
+```java
+接收: @ResquestBody(User user)
+
+响应: Map map = new HashMap<String,Object>
+     if("用户名和密码都正确"){
+         map.put("message",true);
+         map.put("message","登陆成功");
+     }else{
+         ...
+     }
+     return map;
+```
+
+##### 字符串转JSON 以及 JSON 转字符串
+
+*String2JSON*
+
+```javascript
+var jsonObj =  JSON.parse(jsonStr);
+```
+
+*JSON2String*
+
+```javascript
+var jsonStr = JSON.stringify(data);
+console.log(JSON.stringify(data));
+```
+
+##### 页面跳转
+
+```javascript
+mui.openWindow({
+	url:'xxx.html',
+	id:'xxx.html'
+});
+```
+
+***App客户端缓存操作***
+
+大多数时候App客户端会把服务端的数据缓存到app客户端中(通过key-value 键值对来存放)
+
+```javascript
+var user = {
+	username: usernmae.value,
+	password: password.value
+}
+```
+
+```javascript
+这是一个JSON需要转换成String
+plus.storage.setItem("user",JSON.stringify(user)); 
+```
+
+```javascript
+从本地缓存中取出数据
+var userStr = plus.storage.getItem("user");
+```
+
+------
+
+### 项目构建
+
+##### 功能需求:
+
+登陆/注册 个人信息 搜索添加好友 好友聊天
+
+##### 技术架构
+
+***前端***
+
+工具: HBuilder 
+
+框架: MUI  H5+ 
+
+***后端***
+
+工具: IDEA
+
+框架: Spring Boot Spring MVC MyBatis FastDFS Netty
+
+数据库: MySQL
+
+
+
+##### 前端-导入到HBiilder
+
+xxx-chat.zip 解压并导入到 HBuilder
+
+##### 后端-导入数据库/MyBatis逆向工程/SpringBoot项目
+
+数据库: hchat.sql 
+
+MyBatis逆向工程: generatorSqlmapCustom 到IDEA 
+
+SpringBoot:修改pom.xml 和 application.properties 配置文件
+
+##### 后端-SpringBoot整合Netty
+
+spring-netty/xxx.java
+
+------
+
+### 业务开发
+
+##### 用户注册/登陆/个人信息
+
+用户登陆
+
+使用IdWorker.java 雪花算法ID生成器 在Application.java中
+
+创建Result实体类
+
+创建返回客户端的User实体类(不要passowrd)
+
+创建Controller 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
