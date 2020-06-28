@@ -261,7 +261,7 @@ spring-netty/xxx.java
 
 ##### 用户注册/登陆/个人信息
 
-用户登陆
+*用户登陆*
 
 使用IdWorker.java 雪花算法ID生成器 在Application.java中
 
@@ -269,19 +269,37 @@ spring-netty/xxx.java
 
 创建返回客户端的User实体类(不要passowrd)
 
-创建Controller 
+创建UserController (@RequestBody主要用来接收***前端***传递给后端的***json字符串***中的数据的(请求体中的数据的))
 
+创建UserService 和 UserServiceImpl
 
+*注册功能*
 
+*FASTDFS - 文件服务器介绍与搭建*
 
+分布式 高性能 高可用 负载均衡
 
+Tracker server 集群管理 负载均衡和调度并收集Stroge集群状态
 
+Stroge servcer 文件存储
 
+*后端照片上传功能开发*
 
+修改昵称
 
+生成二维码
 
+根据用户名和用户ID生成
 
+并保存到FastDFS中
 
+------
+
+##### 聊天业务
+
+用户ID关联Netty通道后端开发
+
+![image.ZUYNM0](基于Netty的网络编程.assets/image.ZUYNM0.png)
 
 
 
