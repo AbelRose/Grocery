@@ -246,39 +246,35 @@ https://mp.weixin.qq.com/s?__biz=MzIwMTY0NDU3Nw==&mid=2651938221&idx=1&sn=9cb29d
 
 **90. 为什么要使用 spring？**
 
-ioc 奶奶带大的孩子 Aop  从周开始,中央行政机构中,吏、*户*、*礼*、兵、刑、工 各司其职
+ioc 奶奶带大的孩子 
 
+Aop  从周开始,中央行政机构中,吏、*户*、*礼*、兵、刑、工 各司其职
 
+**91.解释一下什么是AOP**
 
+**92.解释一下什么是IOC**
 
+**93.Spring 有哪些主要模块**
 
+**94.Spring 常用的注入方式有哪些**
 
+**95.Spring中的bean是线程安全的吗**
 
+**96.Sprig 支持几种bean的作用域**
 
+**97.Spring自动装配bean有那些方式**
 
+**98.Spring事务实现方式有哪些**
 
+**99.Spring的事务格里**
 
+**100.Spring MVC 运行流程**
 
+**101.Spring MVC 有哪些组件**
 
+**102.@RequestMapping 作用**
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+**103.@Autowired 的作用是什么**
 
 
 
