@@ -77,27 +77,25 @@
 
 ### 3.JVM的内存模型
 
-- JDK1.7
+- JDK1.7![image.FALON0](JVM.assets/image.FALON0.png)
 
-  - ![image.7RKGM0](/tmp/evince-13848/image.7RKGM0.png)
-
-    virtual 是最大内存和初始内存的差值
+  virtual 是最大内存和初始内存的差值
 
 - JDK1.8
 
-  - ![image.44CIM0](/tmp/evince-13848/image.44CIM0.png)
+  - ![image.6AHHN0](JVM.assets/image.6AHHN0.png)
 
     年轻代(Eden + 2 * Survivior) + 年老代(OldGen)
 
     注意:Metaspace的占用空间 不是在虚拟机内部 而是***本地内存***(Native Memory)的空间中
 
-  - ![image.MH02L0](/tmp/evince-13848/image.MH02L0.png)
+  - ![image.3PPNN0](JVM.assets/image.3PPNN0.png)
 
     
 
-- 为何要废弃永久区?? 在现实使用中Perm经常因为不够用而发生内存泄露 爆出异常.
+- 为何要废弃永久区?? 在现实使用中Perm经常因为***不够用***而发生内存泄露 爆出异常.
 
-- 使用jstat查看堆内存的使用情况 jstat [-命令选项] [vmind] [间隔时间 毫秒][查询次数[
+- 使用***jstat***查看***堆内存***的使用情况 jstat [-命令选项] [vmind] [间隔时间 毫秒][查询次数[
 
   - 查看class加载统计 jstat -class [pid]
 
@@ -126,7 +124,7 @@
 
 ### 4.jmap的使用以及内存溢出分析
 
-   jmap可以获取堆内存更加详细的内容 如:对内存使用情况的汇总及内存溢出的定位与分析
+   ***jmap***可以获取堆内存***更加详细***的内容 如:对内存使用情况的汇总及内存溢出的定位与分析
 
 - 查看内存使用情况
 
@@ -183,7 +181,7 @@
 
 - 线程的状态
 
-  - ![image.5TNGM0](/tmp/evince-13848/image.5TNGM0.png)
+  - ![image.HV0QN0](JVM.assets/image.HV0QN0.png)
 
   - Java中线程的状态一共被分成6种:
     (1)初始态( NEW)
@@ -291,11 +289,11 @@ Dcom.sun.management.jmxremote.ssl=false"
 
     - 原理
 
-      ![image.RSS4L0](/tmp/evince-28765/image.RSS4L0.png)
+      ![image.CGBGN0](JVM.assets/image.CGBGN0.png)
 
-      ![image.LZXEM0](/tmp/evince-28765/image.LZXEM0.png)
+      ![image.6RZSN0](JVM.assets/image.6RZSN0.png)
 
-      ![image.RPU1L0](/tmp/evince-28765/image.RPU1L0.png)
+      ![image.IGGON0](JVM.assets/image.IGGON0.png)
 
     - 优缺点 :  优点: 解决了循环引用问题 非root节点会被删除
 
@@ -307,7 +305,7 @@ Dcom.sun.management.jmxremote.ssl=false"
 
     - 原理: 
 
-      ![image.IRCDM0](/tmp/evince-28765/image.IRCDM0.png)
+      ![image.1VGTN0](JVM.assets/image.1VGTN0.png)
 
       
 
@@ -315,7 +313,7 @@ Dcom.sun.management.jmxremote.ssl=false"
 
   - 复制算法
 
-    ![image.9AVYL0](/tmp/evince-28765/image.9AVYL0.png)
+    ![image.OHAAN0](JVM.assets/image.OHAAN0.png)
 
     - 在JVM中 Eden区中的Survivor区 Survivor FROM & Survivor TO(年龄达到一定阈值的对象 会被移动到年老代中)
     - 一分为二(每次只用其中的一块)->复制(正在使用的对象)->清空(该块内存)->交换(角色FROM / TO)->完成回收
@@ -367,7 +365,7 @@ Dcom.sun.management.jmxremote.ssl=false"
 
       -XX:+UseConcMarkSweepGC进行设置。
 
-      ![image.FI7BM0](/tmp/evince-29809/image.FI7BM0.png)
+      ![image.J0S7M0](JVM.assets/image.J0S7M0.png)
 
     - 初始化标记 (CMS-initial-mark) ,标记root,会导致stw;
       并发标记 (CMS-concurrent-mark),与用户线程同时运行;
@@ -397,13 +395,13 @@ Dcom.sun.management.jmxremote.ssl=false"
 
     - 原理: 取消了年轻代 老年代的物理划分 取而代之的是区域(Region 居于逻辑的划分) 不用担心每个代内存是否够用
 
-       ![image.ZUJ0L0](/tmp/evince-29809/image.ZUJ0L0.png)
+       ![image.TSIJN0](JVM.assets/image.TSIJN0.png)
 
 
 
 
 
-![image.X5Q2L0](/tmp/evince-29809/image.X5Q2L0.png)
+![image.1U6IN0](JVM.assets/image.1U6IN0.png)
 
 过程: 年轻代的垃圾回收中 仍需要暂停所有的应用线程 将存活的对象移动到Survivor 或者 老年代中 通过将对象从一个区域***转移***到另一个区域中的方法 完成了清理的工作(完成了堆的压缩 不会出现内存碎片的问题)
 
@@ -423,13 +421,9 @@ Dcom.sun.management.jmxremote.ssl=false"
   - Surivivor(Old) -> Survivor(New)  (有的部分数据晋升到老年代)
   - 最终Eden空间的数据为空 GC停止 应用程序继续执行
 
-  ![image.Z72CM0](/tmp/evince-29809/image.Z72CM0.png)
+  ![image.NFECN0](JVM.assets/image.NFECN0.png)
 
-  ![image.ORTBM0](/tmp/evince-29809/image.ORTBM0.png)
-
-  
-
-  
+  ![image.MQHDN0](JVM.assets/image.MQHDN0.png)
 
   Remembered Set(已记忆集合)
 
@@ -437,7 +431,7 @@ Dcom.sun.management.jmxremote.ssl=false"
 
   引入RSet的概念 作用是跟踪某个堆内的对象引用
 
-  ![image.NNB1L0](/tmp/evince-29809/image.NNB1L0.png)
+  ![image.U8P7M0](JVM.assets/image.U8P7M0.png)
 
   每个 Region初始化时,会***初始化一个RSet***,该集合用来记录并跟踪***其它***Region指向***该***Region中对象的引用,每个Region默认按照***512Kb***划分成多个***Card***,所以RSet需要记录的东西应该是 xx Region的 xx Card。
 
@@ -622,16 +616,9 @@ Dcom.sun.management.jmxremote.ssl=false"
     }
     SourceFile: "Test1.java"
 
-  - 图解
-
-    ![image.CLUYL0](/tmp/evince-6912/image.CLUYL0.png)
-
-    ![image.HU90L0](/tmp/evince-6912/image.HU90L0.png)
-
-  ![image.F07HM0](/tmp/evince-6912/image.F07HM0.png)
-
   
 
+  
 - i++ 与 ++i
 
   - i++ 先返回再加1  ++i 先加1再返回
