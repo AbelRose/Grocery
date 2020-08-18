@@ -229,7 +229,95 @@
 
   - 实现: 
 
-- 原型模式
+    1. 懒汉式单例(类加载时没有生成单例，只有当第一次调用 getlnstance 方法时才去创建这个单例。)
+
+       ```java
+       public class LazySingleton
+       {
+           private static volatile LazySingleton instance=null;    //保证 instance 在所有线程中同步
+           private LazySingleton(){}    //private 避免类在外部被实例化
+           public static synchronized LazySingleton getInstance()
+           {
+               //getInstance 方法前加同步
+               if(instance==null)
+               {
+                   instance=new LazySingleton();
+               }
+               return instance;
+           }
+       }
+       ```
+
+       缺点是 不可以删除volatile 和 synchronized 关键字 否则会产生线程不安全问题 每次访问都要同步会影响性能
+
+    2. 饿汉式单例(类一旦加载就创建一个单例，保证在调用 ***getInstance 方法之前*** 单例已经存在了)
+
+       ```java
+       public class HungrySingleton
+       {
+           private static final HungrySingleton instance=new HungrySingleton();
+           private HungrySingleton(){}
+           public static HungrySingleton getInstance()
+           {
+               return instance;
+           }
+       }
+       ```
+
+  - 应用场景
+
+    某类之要求神成一个对象的时候 班长 身份证号等
+
+    共享场合可以节省内存加快对象访问速度 Web中的配置对象 数据库的连接池等
+
+    当某类需要频繁实例化，而创建的对象又频繁被销毁的时候，如多线程的线程池、网络连接池等
+
+    
+
+- 原型模式(Prototype)
+
+  - 定义: 用一个已经创建的实例作为原型，通过复制该原型对象来创建一个和原型相同或相似的新对象. (即Windows的复制, Java的clone()方法)
+
+  - 结构: 
+
+    ![原型模式的结构图](Design-Patterns.assets/3-1Q114101Fa22.gif)
+
+  - 实现
+
+    原型模式的克隆分为浅克隆和深克隆，Java 中的 Object 类提供了浅克隆的 clone() 方法，具体原型类只要实现 Cloneable 接口就可实现对象的浅克隆，这里的 Cloneable 接口就是抽象原型类
+
+    ```java
+    //具体原型类
+    class Realizetype implements Cloneable
+    {
+        Realizetype()
+        {
+            System.out.println("具体原型创建成功！");
+        }
+        public Object clone() throws CloneNotSupportedException
+        {
+            System.out.println("具体原型复制成功！");
+            return (Realizetype)super.clone();
+        }
+    }
+    //原型模式的测试类
+    public class PrototypeTest
+    {
+        public static void main(String[] args)throws CloneNotSupportedException
+        {
+            Realizetype obj1=new Realizetype();
+            Realizetype obj2=(Realizetype)obj1.clone();
+            System.out.println("obj1==obj2?"+(obj1==obj2));
+        }
+    }
+    
+    
+    ```
+
+  - 应用场景:
+
+    - 对象之间相同或相似，即只是个别的几个属性不同的时候。
+    - 对象的创建过程比较麻烦，但复制比较简单的时候。
 
 - 工厂方法模式
 
