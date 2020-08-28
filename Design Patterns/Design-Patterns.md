@@ -319,13 +319,212 @@
     - 对象之间相同或相似，即只是个别的几个属性不同的时候。
     - 对象的创建过程比较麻烦，但复制比较简单的时候。
 
-- 工厂方法模式
 
-- 抽象工厂模式
+
+- 工厂方法模式(FactoryMethod)  
+
+  - 定义: 定义一个创建产品对象的工厂接口，将产品对象的实际创建工作推迟到具体子工厂类当中。这满足创建型模式中所要求的“创建与使用相分离”的特点。
+
+    把被创建的对象称为“产品”，把创建产品的对象称为“工厂”
+
+  - 特点:
+
+    - 用户只需要知道具体工厂的名称就可得到所要的产品，无须知道产品的具体创建过程；
+    - 在系统增加新的产品时只需要添加具体产品类和对应的具体工厂类，无须对原工厂进行任何修改，满足开闭原则；
+    - 但是, 每增加一个产品就要增加一个具体产品类和一个对应的具体工厂类，这增加了系统的复杂度。
+
+  - 结构
+
+    抽象工厂(Abstract Factory): 提供了创建产品的接口，调用者通过它访问具体工厂的工厂方法 newProduct() 来创建产品。
+
+    具体工厂(ConcreteFactory): 主要是实现抽象工厂中的抽象方法，完成具体产品的创建。
+
+    抽象产品(Product): 定义了产品的规范，描述了产品的主要特性和功能。
+
+    具体产品(ConcreteProduct): 实现了抽象产品角色所定义的接口，由具体工厂来创建，它同具体工厂之间一一对应。
+
+    ![工厂方法模式的结构图](Design-Patterns.assets/3-1Q114135A2M3.gif)
+
+  - 实现
+
+    ```JAVA
+    package FactoryMethod;
+    public class AbstractFactoryTest
+    {
+        public static void main(String[] args)
+        {
+            try
+            {
+                Product a;
+                AbstractFactory af;
+                af=(AbstractFactory) ReadXML1.getObject();
+                a=af.newProduct();
+                a.show();
+            }
+            catch(Exception e)
+            {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+    //抽象产品：提供了产品的接口
+    interface Product
+    {
+        public void show();
+    }
+    //具体产品1：实现抽象产品中的抽象方法
+    class ConcreteProduct1 implements Product
+    {
+        public void show()
+        {
+            System.out.println("具体产品1显示...");
+        }
+    }
+    //具体产品2：实现抽象产品中的抽象方法
+    class ConcreteProduct2 implements Product
+    {
+        public void show()
+        {
+            System.out.println("具体产品2显示...");
+        }
+    }
+    //抽象工厂：提供了厂品的生成方法
+    interface AbstractFactory
+    {
+        public Product newProduct();
+    }
+    //具体工厂1：实现了厂品的生成方法
+    class ConcreteFactory1 implements AbstractFactory
+    {
+        public Product newProduct()
+        {
+            System.out.println("具体工厂1生成-->具体产品1...");
+            return new ConcreteProduct1();
+        }
+    }
+    //具体工厂2：实现了厂品的生成方法
+    class ConcreteFactory2 implements AbstractFactory
+    {
+        public Product newProduct()
+        {
+            System.out.println("具体工厂2生成-->具体产品2...");
+            return new ConcreteProduct2();
+        }
+    }
+    ```
+
+    XML
+
+    ```XML
+    <?xml version="1.0" encoding="UTF-8"?>
+    <config>
+    	<className>ConcreteFactory1</className>
+    </config>
+    ```
+
+  - 应用场景
+
+    工厂方法模式通常适用于以下场景。
+
+    - 客户只知道创建产品的工厂名，而不知道具体的产品名。如 TCL 电视工厂、海信电视工厂等。
+    - 创建对象的任务由多个具体子工厂中的某一个完成，而抽象工厂只提供创建产品的接口。
+    - 客户不关心创建产品的细节，只关心产品的品牌。
+
+  - 扩展
+
+    当需要生成的产品不多且不会增加，一个具体工厂类就可以完成任务时，可删除抽象工厂类。这时工厂方法模式将退化到简单工厂模式，
+
+    ![简单工厂模式的结构图](Design-Patterns.assets/3-1Q114135306120.gif)
+
+
+
+- 抽象工厂模式(AbstractFactory)
+
+  > 工厂方法模式考虑的只是某一类产品的生产。(例如: 汽车工厂值生产汽车 电视机工厂只生产电视机 都是同等级的产品)
+
+  抽象工厂模式将考虑多等级产品的生产，将同一个具体工厂所生产的位于不同等级的一组产品称为一个产品族
+
+  ![电器工厂的产品等级与产品族](Design-Patterns.assets/3-1Q1141559151S.gif)
+
+  - 定义
+
+    一种为访问类提供一个创建一组相关或相互依赖对象的接口，且访问类无须指定所要产品的具体类就能得到同族的不同等级的产品的模式结构。
+
+    抽象工厂模式是工厂方法模式的升级版本，工厂方法模式只生产一个等级的产品，而抽象工厂模式可生产多个等级的产品。
+
+  - 特点
+
+    - 系统中有多个产品族，每个具体工厂创建同一族但属于不同等级结构的产品。
+    - 系统一次只可能消费其中某一族产品，即同族的产品一起使用。
+    - 可以在类的内部对产品族中相关联的多等级产品共同管理，而不必专门引入多个新的类来进行管理。
+    - 当增加一个新的产品族时不需要修改原代码，满足开闭原则。
+    - 当产品族中需要增加一个新的产品时, 所有的工厂类都需要进行修改
+
+  - 结构
+
+    抽象工厂（Abstract Factory）：提供了创建产品的接口，它包含***多个***创建产品的***方法*** newProduct()，可以创建***多个***不同等级的***产品***。***(和工厂方法模式不同)***
+
+    具体工厂（Concrete Factory）：主要是实现抽象工厂中的多个抽象方法，完成具体产品的创建。
+
+    抽象产品（Product）：定义了产品的规范，描述了产品的主要特性和功能，抽象工厂模式有多个抽象产品。
+
+    具体产品（ConcreteProduct）：实现了抽象产品角色所定义的接口，由具体工厂来创建，它 同具体工厂之间是多对一的关系。
+
+    ![抽象工厂模式的结构图](Design-Patterns.assets/3-1Q11416002NW.gif)
+
+  - 实现
+
+    抽象工厂: 提供了产品的生成方法
+
+    ```java
+    interface AbstractFactory
+    {
+        public Product1 newProduct1();
+        public Product2 newProduct2();
+    }
+    ```
+
+    具体工厂: 实现了产品的生成方法
+
+    ```java
+        class ConcreteFactory1 implements AbstractFactory
+        {
+            public Product1 newProduct1()
+            {
+                System.out.println("具体工厂 1 生成-->具体产品 11...");
+                return new ConcreteProduct11();
+            }
+            public Product2 newProduct2()
+            {
+                System.out.println("具体工厂 1 生成-->具体产品 21...");
+                return new ConcreteProduct21();
+            }
+        }
+    ```
+
+  - 应用场景
+
+    创建属于不同操作系统的视窗构建 (如 Java 的 AWT 中的 Button 和 Text 等构件在 Windows 和 UNIX 中的本地实现是不同的。)
+
+    1. 当需要创建的对象是一系列相互关联或相互依赖的产品族时，如电器工厂中的电视机、洗衣机、空调等。
+    2. 系统中有多个产品族，但每次只使用其中的某一族产品。如有人只喜欢穿某一个品牌的衣服和鞋。
+    3. 系统中提供了产品的类库，且所有产品的接口相同，客户端不依赖产品实例的创建细节和内部结构。
+
+  - 扩展
+
+    抽象工厂模式的扩展有一定的“开闭原则”倾斜性：
+
+    1. 当增加一个新的产品族时只需增加一个新的具体工厂，不需要修改原代码，满足开闭原则。
+    2. 当产品族中需要增加一个新种类的产品时，则所有的工厂类都需要进行修改，不满足开闭原则。
+
+
+     另一方面，当系统中只存在一个等级结构的产品时，抽象工厂模式将退化到工厂方法模式。
+
+  
 
 - 建造者模式
 
-
+  
 
 
 
