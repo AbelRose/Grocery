@@ -36,7 +36,7 @@ Java 中sleep()和wait()的区别
 
 - 最主要是***sleep***方法***没有释放锁***，而***wait***方法***释放了锁***，使得***其他线程***可以使用同步控制块或者方法。
 
-  sleep不出让系统资源；wait是进入线程等待池等待，出让系统资源，其他线程可以占用CPU。一般wait不会加时间限制，因为如果wait线程的运行资源不够，再出来也没用，要等待其他线程调用notify/notifyAll唤醒等待池中的所有线程，才会进入就绪队列等待OS分配系统资源。sleep(milliseconds)可以用时间指定使它自动唤醒过来，如果时间不到只能调用interrupt()强行打断。
+  sleep不出让系统资源；wait是进入线程等待池等待，出让系统资源，其他线程可以占用CPU。一般wait不会加时间限制，因为如果wait线程的运行资源不够，再出来也没用，要等待其他线程调用notify/notifyAll唤醒等待池中的所有线程，才会进入就绪队列等待OS分配系统资源。sleep(milliseconds)可以用时间指定使它自动唤醒过来，如果时间不到只能调用***interrupt()强行打断***。
   Thread.Sleep(0)的作用是“触发操作系统立刻重新进行一次CPU竞争”
 
 - 使用范围：wait，notify和notifyAll只能在***同步控制方法*** 或者***同步控制块*** 里面使用，而sleep可以在***任何地方***使用
@@ -161,6 +161,400 @@ JWT Oauth2 Shiro
   ![架构图](Review2.assets/20180906132049199)
 
   ![流程图](Review2.assets/20180906132531764)			 
+
+JWT配置
+
+在springboot中的配置
+
+```xml
+<!-- JWT验证 -->
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt</artifactId>
+    <version>0.9.0</version>
+</dependency>
+```
+
+在application.properties文件中自定义
+
+```xml
+## JWT
+# header:凭证(校验的变量名), expire:有效期1天(单位:s), secret:秘钥(普通字符串)
+app.jwt.header=token
+app.jwt.expire=5184000
+app.jwt.secret=aHR0cHM6Ly9teS5vc2NoaW5hLm5ldC91LzM2ODE4Njg=
+```
+
+JWT Bean
+
+```java
+package com.gy.fast.common.config.jwt;
+
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+/**
+ * JWT类
+ * 
+ * @author geYang
+ * @date 2018-05-18
+ */
+@Component
+@ConfigurationProperties(prefix = "app.jwt")
+public class JWT {
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
+    /**
+     * 加密秘钥
+     */
+    private String secret;
+    /**
+     * 有效时间
+     */
+    private long expire;
+    /**
+     * 用户凭证
+     */
+    private String header;
+
+    /**
+     * 获取:加密秘钥
+     */
+    public String getSecret() {
+        return secret;
+    }
+    
+    /**
+     * 设置:加密秘钥
+     */
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
+    
+    /**
+     * 获取:有效期(s)
+     * */
+    public long getExpire() {
+        return expire;
+    }
+    /**
+     * 设置:有效期(s)
+     * */
+    public void setExpire(long expire) {
+        this.expire = expire;
+    }
+    
+    /**
+     * 获取:凭证
+     * */
+    public String getHeader() {
+        return header;
+    }
+    /**
+     * 设置:凭证
+     * */
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
+    /**
+     * 生成Token签名
+     * @param userId 用户ID
+     * @return 签名字符串
+     * @author geYang
+     * @date 2018-05-18 16:35
+     */
+    public String generateToken(long userId) {
+        System.out.println("header=" + getHeader() + ", expire=" + getExpire() + ", secret=" + getSecret());
+        Date nowDate = new Date();
+        // 过期时间
+        Date expireDate = new Date(nowDate.getTime() + expire * 1000);
+        return Jwts.builder().setHeaderParam("typ", "JWT").setSubject(String.valueOf(userId)).setIssuedAt(nowDate)
+                .setExpiration(expireDate).signWith(SignatureAlgorithm.HS512, getSecret()).compact();
+        // 注意: JDK版本高于1.8, 缺少 javax.xml.bind.DatatypeConverter jar包,编译出错
+    }
+
+    /**
+     * 获取签名信息
+     * @param token
+     * @author geYang
+     * @date 2018-05-18 16:47
+     */
+    public Claims getClaimByToken(String token) {
+        try {
+            return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        } catch (Exception e) {
+            logger.debug("validate is token error ", e);
+            return null;
+        }
+    }
+
+    /**
+     * 判断Token是否过期
+     * @param expiration
+     * @return true 过期
+     * @author geYang
+     * @date 2018-05-18 16:41
+     */
+    public boolean isTokenExpired(Date expiration) {
+        return expiration.before(new Date());
+    }
+
+}
+
+```
+
+拦截器
+
+```java
+package com.gy.fast.common.config.jwt;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import com.gy.fast.common.exception.SysException;
+
+import io.jsonwebtoken.Claims;
+
+/**
+ * Token验证拦截器
+ * @author geYang
+ * @date 2018-05-18
+ */
+@Component
+public class JwtInterceptor  extends HandlerInterceptorAdapter {
+    
+    @Autowired
+    private JWT jwt;
+    
+    public static final String USER_KEY = "userId";
+   
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
+        String servletPath = request.getServletPath();
+        System.out.println("ServletPath: " + servletPath);
+        // 不需要验证,直接放行
+        boolean isNotCheck = isNotCheck(servletPath);
+        if (isNotCheck) {
+            return true;
+        }
+        // 需要验证
+        String token = getToken(request);
+        
+        if (StringUtils.isBlank(token)) {
+            throw new SysException(jwt.getHeader() + "失效,请重新登录", 401);
+        }
+        // 获取签名信息
+        Claims claims = jwt.getClaimByToken(token);
+        System.out.println("TOKEN: " + claims);
+        // 判断签名是否存在或过期
+        boolean b = claims==null || claims.isEmpty() || jwt.isTokenExpired(claims.getExpiration());
+        if (b) {
+            throw new SysException(jwt.getHeader() + "失效,请重新登录", 401);
+        }
+        // 将签名中获取的用户信息放入request中;
+        request.setAttribute(USER_KEY, claims.getSubject());
+        return true;
+    }
+    
+    /**
+     * 根据URL判断当前请求是否不需要校验, true:需要校验
+     */
+    public boolean isNotCheck(String servletPath) {
+        // 若 请求接口 以 / 结尾, 则去掉 /
+        servletPath = servletPath.endsWith("/")
+                ? servletPath.substring(0,servletPath.lastIndexOf("/"))
+                : servletPath;
+        System.out.println("servletPath = " + servletPath);
+        for (String path : NOT_CHECK_URL) {
+            System.out.println("path = " + path);
+            // path 以 /** 结尾, servletPath 以 path 前缀开头
+            if (path.endsWith("/**")) {
+                String pathStart = path.substring(0, path.lastIndexOf("/")+1);
+                System.out.println("pathStart = " + pathStart);
+                if (servletPath.startsWith(pathStart)) {
+                    return true;
+                }
+                String pathStart2 = path.substring(0, path.lastIndexOf("/"));
+                System.out.println("pathStart2 = " + pathStart2);
+                if (servletPath.equals(pathStart2)) {
+                    return true;
+                }
+            }
+            // servletPath == path
+            if (servletPath.equals(path)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * 获取请求Token
+     */
+    private String getToken(HttpServletRequest request) {
+    	String token = request.getHeader(jwt.getHeader());
+    	if (StringUtils.isBlank(token)) {
+    		token = request.getParameter(jwt.getHeader());
+    	}
+    	return token;
+    }
+    
+    /**
+     * 不用拦截的页面路径(也可存入数据库中), 不要以 / 结尾
+     */
+    private static final String[] NOT_CHECK_URL = {"/test/**", "/login/**"}; 
+
+}
+
+```
+
+配置拦截器
+
+```java
+package com.gy.fast.common.config;
+
+import com.gy.fast.common.config.jwt.JwtInterceptor;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
+
+/**
+ * WebMvc配置
+ * @author geYang
+ * @date 2018-05-14
+ */
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+    
+    @Autowired
+    private JwtInterceptor jwtInterceptor;
+    
+   /**
+    * APP接口拦截器
+    * */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(jwtInterceptor).addPathPatterns("/app/**");
+    }
+  
+
+}
+
+```
+
+基础控制器
+
+```java
+package com.gy.fast.module.work.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gy.fast.common.config.jwt.JwtInterceptor;
+import com.gy.fast.common.util.HttpContextUtils;
+
+/**
+ * 基础Controller
+ * @author geYang
+ * @date 2018-05-15
+ */
+public abstract class BaseController {
+	protected Logger logger = LoggerFactory.getLogger(getClass());
+
+	/**
+	 * 获取当前登录用户ID
+	 * @author geYang
+	 * @date 2018-05-18 19:46
+	 */
+	protected Long getUserId() {
+	    HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
+		return Long.parseLong(request.getAttribute(JwtInterceptor.USER_KEY).toString());
+	}
+}
+```
+
+编写用户控制器
+
+```java
+package com.gy.fast.module.work.controller.app;
+
+import java.util.HashMap;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.gy.fast.common.config.jwt.JWT;
+import com.gy.fast.common.util.R;
+import com.gy.fast.module.work.controller.BaseController;
+
+/**
+ * 用户
+ * @author geYang
+ * @date 2018-05-18
+ */
+@RestController
+@RequestMapping("app/user")
+public class AppUserController extends BaseController{
+    
+    @Autowired
+    private JWT jwt;
+    
+    /**
+     * 获取用户信息
+     * @return
+     * @author geYang
+     * @date 2018-05-18 19:49
+     */
+    @GetMapping()
+    public R info() {
+        return R.ok(getUserId());
+    }
+    
+    /**
+     * 用户登录
+     * @return
+     * @author geYang
+     * @date 2018-05-18 19:55
+     */
+    @PostMapping("login")
+    public R login() {
+       //生成token
+        String token = jwt.generateToken(10);
+        HashMap<String,Object> map = new HashMap<String,Object>();
+        map.put("expire", jwt.getExpire());
+        map.put("token", token);
+        return R.ok(map);
+    }
+}
+```
+
+
+
+
 
 
 

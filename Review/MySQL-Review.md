@@ -72,3 +72,30 @@ SELECT `column` FROM `table` WHERE `field` like 'keyword%';
 写的顺序：select ... from... where.... group by... having... order by..
 
 执行顺序：from... where...group by... having.... select ... order by...                                    
+
+
+
+sql 中order by 与group by的顺序 是：
+
+select
+ from
+ where
+ group by
+ order by
+
+> 注意：group by 比order by先执行，order by不会对group by 内部进行排序，如果group by后只有一条记录，那么order by 将无效。要查出group by中最大的或最小的某一字段使用 max或min函数。
+
+例：
+
+```sql
+select 
+sum(click_num) as totalnum,
+max(update_time) as update_time,
+count(*) as totalarticle 
+from article_detail 
+where userid =1 
+group by userid 
+order by update_time 
+desc
+```
+
